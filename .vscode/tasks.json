@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "C/C++: g++.exe kompiluj aktywny plik",
+      "type": "shell",
+      "command": "C:/msys64/ucrt64/bin/g++.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe",
+        "player/player.cpp",
+        "mecze/mecz.cpp",
+
+        "uibuttons.cpp",
+        "-lpdcurses",
+        "-DWIN32"
+      ],
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "detail": "Kompilowanie pliku C++"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc.exe kompiluj aktywny plik",
+      "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "uibuttons.cpp",
+        "mecze/mecz.cpp",
+        "player/player.cpp",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe",
+        "-lpdcurses"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Zadanie wygenerowane przez debuger."
+    }
+  ]
+}
