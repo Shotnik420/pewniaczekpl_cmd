@@ -12,6 +12,7 @@ private:
     
 public:
     Bet(int BID, int who, int amount);
+    Bet();
     int getBID() const;
     int getWho() const;
     int getAmount() const;

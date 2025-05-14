@@ -33,6 +33,7 @@
         "uibuttons.cpp",
         "mecze/mecz.cpp",
         "player/player.cpp",
+        "bet/bet.cpp",
         "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe",
         "-lpdcurses"

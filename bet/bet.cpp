@@ -1,6 +1,7 @@
 #include "bet.h"
 
 Bet::Bet(int BID, int who, int amount) : BID(BID), who(who), amount(amount) {}
+Bet::Bet() : BID(0), who(0), amount(0) {}
 int Bet::getBID() const {
     return BID;
 }

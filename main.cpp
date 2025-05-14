@@ -27,12 +27,13 @@ int selected_match_index = -1;
 
 
 int main(int argc, char *argv[]) {
+    float current_bet = 0.0;
     std::map<int, Mecz> mecze;
     std::map<int, Bet> bety;
     srand(time(NULL));
     MEVENT event;
     int ch = 0;
-    int money = 500;
+    float money = 500;
     const char *status = "Normalny";
     bool show_ascii = false;
     bool button_focused = false;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
 
 
         box(win2, 0, 0);
-        box(clicked_win, 0, 0);
+        
         UIButton toggleBtn = create_button(70, 1, 18, 5, "  JAZDA  ", 102);
         UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
         UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
@@ -112,7 +113,7 @@ int main(int argc, char *argv[]) {
         UIButton sub_10_from_bet = create_button(39, 4, 4, 3, "10", 104);
         UIButton sub_50_from_bet = create_button(34, 4, 4, 3, "50", 104);
         UIButton sub_100_from_bet = create_button(28, 4, 5, 3, "100", 104);
-
+        
         draw_button(win, &toggleBtn);
         draw_button(win, &add_10_to_bet);
         draw_button(win, &add_50_to_bet);
@@ -120,9 +121,7 @@ int main(int argc, char *argv[]) {
         draw_button(win, &sub_10_from_bet);
         draw_button(win, &sub_50_from_bet);
         draw_button(win, &sub_100_from_bet);
-        mvwprintw(clicked_win, 2, 4, "Saldo: %d", money);
-        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: 0");
-
+        
         if (show_details) {
             werase(details_win);
             box(details_win, 0, 0);
@@ -204,6 +203,52 @@ int main(int argc, char *argv[]) {
                         napms(40);
                     }
                 }
+                if (is_inside_button(&add_10_to_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (money > 10.0) {
+                            current_bet += 10.0;
+                            money -= 10.0;
+                        } else {
+                            current_bet += money;
+                            money = 0.0;
+                        }
+                        werase(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+                if (is_inside_button(&add_50_to_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (money > 50.0) {
+                            current_bet += 50.0;
+                            money -= 50.0;
+                        } else {
+                            current_bet += money;
+                            money = 0.0;
+                        }
+                        werase(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+                if (is_inside_button(&add_100_to_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (current_bet + 100.0 <= money) {
+                            current_bet += 100.0;
+                        } else {
+                            current_bet = money;
+                        }
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+                
                 for (int i = 0; i < 9; i++) {
                     if(show_details) {
                         break;
