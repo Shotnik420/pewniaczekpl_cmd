@@ -64,14 +64,27 @@ void Mecz::set_name() {
     this->nazwa = opponent1 + " vs " + opponent2;
 }
 void Mecz::set_random_opponentsteam() {
-    std::vector<Player> players = all_players;
+    
+    auto all_players_copy = std::vector<std::unique_ptr<Player>>{};
+    all_players_copy.reserve(all_players.size()); // pre-allocate for efficiency
+
+    for (const auto& player : all_players) {
+        all_players_copy.push_back(std::make_unique<Player>(*player));
+    }
+
+    
+
     std::random_device rd;
     std::mt19937 g(rd());
-    std::shuffle(players.begin(), players.end(), g);
-    if (players.size() >= 10) {
-        opponents1team.assign(players.begin(), players.begin() + 5);
+    std::shuffle(all_players_copy.begin(), all_players_copy.end(), g);
+    if (all_players.size() >= 10) {
+        for (int i = 0; i < 5; ++i) {
+            opponents1team.push_back(*all_players_copy[i]);
+        }
+        for (int i = 5; i < 10; ++i) {
+            opponents2team.push_back(*all_players_copy[i]);
+        }
 
-        opponents2team.assign(players.begin() + 5, players.begin() + 10);
 
     } else {
         std::cerr << "Za mało graczy, aby utworzyć dwie drużyny po 5 osób.\n";

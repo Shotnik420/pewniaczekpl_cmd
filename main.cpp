@@ -9,6 +9,7 @@
 #include "./mecze/mecz.h"
 #include "./mecze/team_picker.cpp"
 #include "./bet/bet.h"
+#include "./mecze/team_picker.h"
 #define WIDTH 60
 #define HEIGHT 5
 #define ART_HEIGHT 8
@@ -27,6 +28,7 @@ int selected_match_index = -1;
 
 
 int main(int argc, char *argv[]) {
+    initialize_players();
     float current_bet = 0.0;
     std::map<int, Mecz> mecze;
     std::map<int, Bet> bety;
@@ -105,7 +107,7 @@ int main(int argc, char *argv[]) {
 
         box(win2, 0, 0);
         
-        UIButton toggleBtn = create_button(70, 1, 18, 5, "  JAZDA  ", 102);
+        UIButton toggleBtn = create_button(70, 1, 18, 5, "  Dupa  ", 102);
         UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
         UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
         UIButton add_50_to_bet = create_button(34, 1, 4, 3, "50", 103);
@@ -126,10 +128,22 @@ int main(int argc, char *argv[]) {
             werase(details_win);
             box(details_win, 0, 0);
             Mecz &mecz = mecze[selected_match_index];
-            mvwprintw(details_win, 1, 2, "Szczegoly meczu %s:", mecz.getName().c_str());
-            mvwprintw(details_win, 5, 4, "Kurs na wygrana %s: %.2f", mecz.getOpponent1().c_str(), mecz.getKurs1());
-            mvwprintw(details_win, 6, 4, "Kurs na wygrana %s: %.2f", mecz.getOpponent2().c_str(), mecz.getKurs2());
-
+            mvwprintw(details_win, 8, 6, mecz.getOpponent1().c_str());
+            mvwprintw(details_win, 18, 6, mecz.getOpponent2().c_str());
+            mvwprintw(details_win, 11, 60, "|%.2f", mecz.getKurs1());
+            mvwprintw(details_win, 15, 60, "|%.2f", mecz.getKurs2());
+            for(int i = 0; i < 5; ++i) {
+                if (i < mecz.getOpponents1team().size()) {
+                    mvwprintw(details_win, 4 + i, 30, mecz.getOpponents1team()[i].getName().c_str());
+                } else {
+                    mvwprintw(details_win, 4 + i, 30, "Brak", i + 1);
+                }
+                if (i < mecz.getOpponents2team().size()) {
+                    mvwprintw(details_win, 18 + i, 30, mecz.getOpponents2team()[i].getName().c_str());
+                } else {
+                    mvwprintw(details_win, 18 + i, 30, "Brak");
+                }
+            }
             draw_button(win, &detailsGobackBtn);
             wrefresh(details_win);
         } else {

@@ -28,6 +28,8 @@ public:
     float getKurs2() const;
     std::string getOpponent1() const;
     std::string getOpponent2() const;
+    std::vector<Player> getOpponents1team() const { return opponents1team; }
+    std::vector<Player> getOpponents2team() const { return opponents2team; }
     int getWynik() const;
 private:
     void set_name();
