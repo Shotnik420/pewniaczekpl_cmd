@@ -15,7 +15,7 @@ void init_ui_colors() {
     init_color(COLOR_YELLOW, 1000, 1000, 0);        // Żółty
     init_color(8, 1000, 500, 0);                    // Pomarańcz (ID: 8)
     init_color(9, 500, 500, 1000);                  // Jasnoniebieski (ID: 9)
-    init_color(10, 0, 0, 700);                      // Ciemnoniebieski (ID: 10)
+    init_color(10, 400, 200, 700);                      // Ciemnoniebieski (ID: 10)
     init_color(11, 0, 1000, 0);                      // Zielony (ID: 11)
     init_color(12, 1000, 0, 0);                      // Czerwony (ID: 12)
 

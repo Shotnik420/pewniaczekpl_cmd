@@ -130,8 +130,14 @@ int main(int argc, char *argv[]) {
             Mecz &mecz = mecze[selected_match_index];
             mvwprintw(details_win, 8, 6, mecz.getOpponent1().c_str());
             mvwprintw(details_win, 18, 6, mecz.getOpponent2().c_str());
+            short color1 = get_border_color(mecz.getKurs1(),0.0);
+            short color2 = get_border_color(mecz.getKurs2(),0.0);
+            wattron(details_win, COLOR_PAIR(color1));
             mvwprintw(details_win, 11, 60, "|%.2f", mecz.getKurs1());
+            wattroff(details_win, COLOR_PAIR(color1));
+            wattron(details_win, COLOR_PAIR(color2));
             mvwprintw(details_win, 15, 60, "|%.2f", mecz.getKurs2());
+            wattroff(details_win, COLOR_PAIR(color2));
             for(int i = 0; i < 5; ++i) {
                 if (i < mecz.getOpponents1team().size()) {
                     mvwprintw(details_win, 4 + i, 30, mecz.getOpponents1team()[i].getName().c_str());
@@ -253,16 +259,59 @@ int main(int argc, char *argv[]) {
                 }
                 if (is_inside_button(&add_100_to_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        if (current_bet + 100.0 <= money) {
+                        if (money> 100.0) {
                             current_bet += 100.0;
+                            money -= 100.0;
                         } else {
-                            current_bet = money;
+                            current_bet += money;
+                            money = 0.0;
                         }
                         wrefresh(clicked_win);
                         napms(40);
                     }
                 }
-                
+                if (is_inside_button(&sub_100_from_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (current_bet >= 100.0) {
+                            current_bet -= 100.0;
+                            money += 100.0;
+                        } else {
+                            money += current_bet;
+                            current_bet = 0.0;
+                        }
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+
+                if (is_inside_button(&sub_50_from_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (current_bet >= 50.0) {
+                            current_bet -= 50.0;
+                            money += 50.0;
+                        } else {
+                            money += current_bet;
+                            current_bet = 0.0;
+                        }
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+
+                if (is_inside_button(&sub_10_from_bet, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        if (current_bet >= 10.0) {
+                            current_bet -= 10.0;
+                            money += 0.0;
+                        } else {
+                            money += current_bet;
+                            current_bet = 0.0;
+                        }
+                        wrefresh(clicked_win);
+                        napms(40);
+                    }
+                }
+
                 for (int i = 0; i < 9; i++) {
                     if(show_details) {
                         break;
@@ -396,3 +445,4 @@ short get_border_color(float kurs1, float kurs2) {
     else if (kurs > 1.4f) return 100;   // Niebieski
     else return 1;        // Domyślny (biały)
 }
+
