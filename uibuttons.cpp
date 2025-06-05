@@ -18,7 +18,9 @@ void init_ui_colors() {
     init_color(10, 400, 200, 700);                      // Ciemnoniebieski (ID: 10)
     init_color(11, 0, 1000, 0);                      // Zielony (ID: 11)
     init_color(12, 1000, 0, 0);                      // Czerwony (ID: 12)
-
+    init_color(13, 700, 1000, 700);                 // Jasnozielony (ID: 13)
+    init_color(14, 700, 900, 1000);  // Jasnoniebieski (ID: 14)
+    init_color(15, 1000, 800, 500);  // Jasnopomarańczowy (ID: 15)
     // Pary kolorów
     init_pair(COLOR_BRIGHT_YELLOW, COLOR_YELLOW, COLOR_BLACK);
     init_pair(YELLOW_BORDER, COLOR_YELLOW, COLOR_BLACK);
@@ -29,6 +31,10 @@ void init_ui_colors() {
 
     init_pair(103, 11, COLOR_BLACK);   // Zielony
     init_pair(104, 12, COLOR_BLACK);   // Czerwony
+    
+    init_pair(105, 13, COLOR_BLACK); // Para kolorów z jasnozielonym na czarnym tle
+    init_pair(106, 14, COLOR_BLACK); // Jasnoniebieski na czarnym tle
+    init_pair(107, 15, COLOR_BLACK); // Jasnopomarańczowy na czarnym tle
 }
 
 

@@ -65,11 +65,11 @@ void Mecz::set_name() {
 }
 void Mecz::set_random_opponentsteam() {
     
-    auto all_players_copy = std::vector<std::unique_ptr<Player>>{};
+    auto all_players_copy = std::vector<Player>{};
     all_players_copy.reserve(all_players.size()); // pre-allocate for efficiency
 
     for (const auto& player : all_players) {
-        all_players_copy.push_back(std::make_unique<Player>(*player));
+        all_players_copy.push_back(*player);
     }
 
     
@@ -79,10 +79,10 @@ void Mecz::set_random_opponentsteam() {
     std::shuffle(all_players_copy.begin(), all_players_copy.end(), g);
     if (all_players.size() >= 10) {
         for (int i = 0; i < 5; ++i) {
-            opponents1team.push_back(*all_players_copy[i]);
+            opponents1team.push_back(all_players_copy[i]);
         }
         for (int i = 5; i < 10; ++i) {
-            opponents2team.push_back(*all_players_copy[i]);
+            opponents2team.push_back(all_players_copy[i]);
         }
 
 

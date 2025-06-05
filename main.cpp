@@ -1,4 +1,5 @@
 #define NCURSES_MOUSE_VERSION
+#include <iostream>
 #include <curses.h>
 #include <time.h>
 #include <unistd.h>
@@ -10,6 +11,7 @@
 #include "./mecze/team_picker.cpp"
 #include "./bet/bet.h"
 #include "./mecze/team_picker.h"
+#include "./player/pilkarz.h"
 #define WIDTH 60
 #define HEIGHT 5
 #define ART_HEIGHT 8
@@ -94,8 +96,8 @@ int main(int argc, char *argv[]) {
 
 
     
-    
-    
+
+
     wrefresh(win2);
     keypad(win, TRUE);
     keypad(win2, TRUE);
@@ -109,6 +111,8 @@ int main(int argc, char *argv[]) {
         
         UIButton toggleBtn = create_button(70, 1, 18, 5, "  Dupa  ", 102);
         UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
+        UIButton betBtn = create_button(60, 20, 18, 5, "  Bet  ", 8);
+        UIButton betBtn2 = create_button(60, 5, 18, 5, "  Bet2  ", 8);
         UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
         UIButton add_50_to_bet = create_button(34, 1, 4, 3, "50", 103);
         UIButton add_100_to_bet = create_button(28, 1, 5, 3, "100", 103);
@@ -123,7 +127,9 @@ int main(int argc, char *argv[]) {
         draw_button(win, &sub_10_from_bet);
         draw_button(win, &sub_50_from_bet);
         draw_button(win, &sub_100_from_bet);
-        
+        draw_button(win, &detailsGobackBtn);
+
+
         if (show_details) {
             werase(details_win);
             box(details_win, 0, 0);
@@ -140,18 +146,64 @@ int main(int argc, char *argv[]) {
             wattroff(details_win, COLOR_PAIR(color2));
             for(int i = 0; i < 5; ++i) {
                 if (i < mecz.getOpponents1team().size()) {
-                    mvwprintw(details_win, 4 + i, 30, mecz.getOpponents1team()[i].getName().c_str());
+                    auto currentPlayer = mecz.getOpponents1team()[i];
+                    int colorpair =0;
+                    if (currentPlayer.getType()==1){
+                        currentPlayer = Pilkarz(currentPlayer.getPID(), currentPlayer.getName(), currentPlayer.getSkillFootball(), currentPlayer.getSkillBasketball(), currentPlayer.getSkillTennis(), currentPlayer.getConcussionDayLeft());
+                        colorpair = 106;
+                    }else if (currentPlayer.getType()==2){
+                        currentPlayer = Koszykarz(currentPlayer.getPID(), currentPlayer.getName(), currentPlayer.getSkillFootball(), currentPlayer.getSkillBasketball(), currentPlayer.getSkillTennis(), currentPlayer.getConcussionDayLeft());
+                        colorpair = 102;
+                    }
+                    
+                    wattron(details_win, COLOR_PAIR(colorpair));
+                    mvwprintw(details_win, 4 + i, 30, "%s", currentPlayer.getName().c_str());
+                    mvwprintw(details_win, 4 + i, 50, "%.2f", currentPlayer.getSkillFootball());
+                    wattroff(details_win, COLOR_PAIR(colorpair));
+
+
                 } else {
                     mvwprintw(details_win, 4 + i, 30, "Brak", i + 1);
                 }
                 if (i < mecz.getOpponents2team().size()) {
+                    auto currentPlayer = mecz.getOpponents2team()[i];
+                    int colorpair =0;
+                    if (currentPlayer.getType()==1){
+                        currentPlayer = Pilkarz(currentPlayer.getPID(), currentPlayer.getName(), currentPlayer.getSkillFootball(), currentPlayer.getSkillBasketball(), currentPlayer.getSkillTennis(), currentPlayer.getConcussionDayLeft());
+                        colorpair = 106;
+                    }else if (currentPlayer.getType()==2){
+                        currentPlayer = Koszykarz(currentPlayer.getPID(), currentPlayer.getName(), currentPlayer.getSkillFootball(), currentPlayer.getSkillBasketball(), currentPlayer.getSkillTennis(), currentPlayer.getConcussionDayLeft());
+                        colorpair = 102;
+                    }
+                    
+                    wattron(details_win, COLOR_PAIR(colorpair));
                     mvwprintw(details_win, 18 + i, 30, mecz.getOpponents2team()[i].getName().c_str());
+                    wattroff(details_win, COLOR_PAIR(colorpair));
                 } else {
                     mvwprintw(details_win, 18 + i, 30, "Brak");
                 }
             }
             draw_button(win, &detailsGobackBtn);
+            draw_button(details_win, &betBtn);
             wrefresh(details_win);
+            ch = wgetch(details_win);
+            if (ch == KEY_MOUSE) {
+                if (getmouse(&event) == OK) {
+                int rel_x = event.x;
+                int rel_y = event.y-5;
+                if (is_inside_button(&betBtn, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        napms(40);
+                    }
+                }
+                if (is_inside_button(&betBtn2, rel_x, rel_y)) {
+                    if (event.bstate & BUTTON1_CLICKED) {
+                        true;
+                        napms(40);
+                    }
+                }
+            }
+        }
         } else {
             for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
                 
@@ -267,6 +319,10 @@ int main(int argc, char *argv[]) {
                             money = 0.0;
                         }
                         wrefresh(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
+                        wrefresh(clicked_win);
                         napms(40);
                     }
                 }
@@ -279,6 +335,10 @@ int main(int argc, char *argv[]) {
                             money += current_bet;
                             current_bet = 0.0;
                         }
+                        wrefresh(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
                         wrefresh(clicked_win);
                         napms(40);
                     }
@@ -294,6 +354,10 @@ int main(int argc, char *argv[]) {
                             current_bet = 0.0;
                         }
                         wrefresh(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
+                        wrefresh(clicked_win);
                         napms(40);
                     }
                 }
@@ -308,9 +372,15 @@ int main(int argc, char *argv[]) {
                             current_bet = 0.0;
                         }
                         wrefresh(clicked_win);
+                        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                        box(clicked_win, 0, 0);
+                        wrefresh(clicked_win);
                         napms(40);
                     }
                 }
+                
+                
 
                 for (int i = 0; i < 9; i++) {
                     if(show_details) {
@@ -334,16 +404,7 @@ int main(int argc, char *argv[]) {
             }
         
         }
-        else if (ch == '\n' || ch == KEY_ENTER) { // Enter
-            if (button_focused) {
-                show_ascii = !show_ascii;
-            }
-        }
-        else if (ch == KEY_UP || ch == KEY_DOWN) {
-            button_focused = !button_focused;
-        }
         
-        // Opóźnienie dla lepszej czytelności
         napms(50);
     }
     
@@ -445,4 +506,5 @@ short get_border_color(float kurs1, float kurs2) {
     else if (kurs > 1.4f) return 100;   // Niebieski
     else return 1;        // Domyślny (biały)
 }
+
 
