@@ -25,9 +25,10 @@ short get_border_color(float kurs1, float kurs2);
 
 bool show_details = false;
 bool obstawianie = false;
+bool IsObstawione = false;
 int selected_match_index = -1;
 
-
+Mecz *current_match = nullptr;
 
 int main(int argc, char *argv[]) {
     initialize_players();
@@ -103,37 +104,39 @@ int main(int argc, char *argv[]) {
     keypad(win2, TRUE);
     keypad(details_win, TRUE);
     
+    ch = wgetch(win);
+
+
+     box(win2, 0, 0);
+        
+    UIButton toggleBtn = create_button(70, 1, 18, 5, "  Wyniki  ", 102);
+    UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
+    UIButton betBtn = create_button(60, 3, 18, 5, "  Bet  ", 8);
+    UIButton betBtn2 = create_button(60, 20, 18, 5, "  Bet  ", 8);
+    UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
+    UIButton add_50_to_bet = create_button(34, 1, 4, 3, "50", 103);
+    UIButton add_100_to_bet = create_button(28, 1, 5, 3, "100", 103);
+    UIButton sub_10_from_bet = create_button(39, 4, 4, 3, "10", 104);
+    UIButton sub_50_from_bet = create_button(34, 4, 4, 3, "50", 104);
+    UIButton sub_100_from_bet = create_button(28, 4, 5, 3, "100", 104);
+        
+    draw_button(win, &toggleBtn);
+    draw_button(win, &add_10_to_bet);
+    draw_button(win, &add_50_to_bet);
+    draw_button(win, &add_100_to_bet);
+    draw_button(win, &sub_10_from_bet);
+    draw_button(win, &sub_50_from_bet);
+    draw_button(win, &sub_100_from_bet);
 
     while(ch != 27) { //loop
-
-
-        box(win2, 0, 0);
-        
-        UIButton toggleBtn = create_button(70, 1, 18, 5, "  Dupa  ", 102);
-        UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
-        UIButton betBtn = create_button(60, 20, 18, 5, "  Bet  ", 8);
-        UIButton betBtn2 = create_button(60, 5, 18, 5, "  Bet2  ", 8);
-        UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
-        UIButton add_50_to_bet = create_button(34, 1, 4, 3, "50", 103);
-        UIButton add_100_to_bet = create_button(28, 1, 5, 3, "100", 103);
-        UIButton sub_10_from_bet = create_button(39, 4, 4, 3, "10", 104);
-        UIButton sub_50_from_bet = create_button(34, 4, 4, 3, "50", 104);
-        UIButton sub_100_from_bet = create_button(28, 4, 5, 3, "100", 104);
-        
-        draw_button(win, &toggleBtn);
-        draw_button(win, &add_10_to_bet);
-        draw_button(win, &add_50_to_bet);
-        draw_button(win, &add_100_to_bet);
-        draw_button(win, &sub_10_from_bet);
-        draw_button(win, &sub_50_from_bet);
-        draw_button(win, &sub_100_from_bet);
-        draw_button(win, &detailsGobackBtn);
-
-
         if (show_details) {
+            draw_button(win, &detailsGobackBtn);
+            
+            wrefresh(win);
             werase(details_win);
             box(details_win, 0, 0);
             Mecz &mecz = mecze[selected_match_index];
+            current_match = &mecz;
             mvwprintw(details_win, 8, 6, mecz.getOpponent1().c_str());
             mvwprintw(details_win, 18, 6, mecz.getOpponent2().c_str());
             short color1 = get_border_color(mecz.getKurs1(),0.0);
@@ -144,6 +147,8 @@ int main(int argc, char *argv[]) {
             wattron(details_win, COLOR_PAIR(color2));
             mvwprintw(details_win, 15, 60, "|%.2f", mecz.getKurs2());
             wattroff(details_win, COLOR_PAIR(color2));
+            mvwprintw(details_win, 11, 80, "|%i", mecz.getBet1());
+            mvwprintw(details_win, 15, 80, "|%i", mecz.getBet2());
             for(int i = 0; i < 5; ++i) {
                 if (i < mecz.getOpponents1team().size()) {
                     auto currentPlayer = mecz.getOpponents1team()[i];
@@ -183,27 +188,13 @@ int main(int argc, char *argv[]) {
                     mvwprintw(details_win, 18 + i, 30, "Brak");
                 }
             }
-            draw_button(win, &detailsGobackBtn);
+            
             draw_button(details_win, &betBtn);
+            draw_button(details_win, &betBtn2);
             wrefresh(details_win);
             ch = wgetch(details_win);
-            if (ch == KEY_MOUSE) {
-                if (getmouse(&event) == OK) {
-                int rel_x = event.x;
-                int rel_y = event.y-5;
-                if (is_inside_button(&betBtn, rel_x, rel_y)) {
-                    if (event.bstate & BUTTON1_CLICKED) {
-                        napms(40);
-                    }
-                }
-                if (is_inside_button(&betBtn2, rel_x, rel_y)) {
-                    if (event.bstate & BUTTON1_CLICKED) {
-                        true;
-                        napms(40);
-                    }
-                }
-            }
-        }
+           
+        
         } else {
             for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
                 
@@ -216,35 +207,60 @@ int main(int argc, char *argv[]) {
 
                 small_wins[i] = derwin(win2, SMALL_WIN_HEIGHT, SMALL_WIN_WIDTH, win_y, win_x);
                 short color = get_border_color(mecze[i].getKurs1(), mecze[i].getKurs2());
-                if(obstawianie){
+                float payout1 = 0.0;
+                float payout2 = 0.0;
+                if(obstawianie or IsObstawione){
                     Mecz &current_mecz = mecze[i];
-                    if (current_mecz.getWynik() == 0) {
-                        color = 103; 
-                    } else {
-                        color = 104; 
-                    }
+                    if (current_mecz.getWynik() != 0) {
+                        float invested = current_mecz.getBet1() + current_mecz.getBet2();
+                        payout1 = current_mecz.getPayout1();
+                        payout2 = current_mecz.getPayout2();
+                        money += payout1 + payout2;
+                        if (payout1 > invested || payout2 > invested) {
+                            color = 103; 
+                        } else if (payout1 <= invested && payout2 <= invested) {
+                            color = 104; // czerwony
+                        } 
+                        
+                    } 
                 }else{
                     short color = get_border_color(mecze[i].getKurs1(), mecze[i].getKurs2());
                 }
                 
                 wattron(small_wins[i], COLOR_PAIR(color)); 
                 box(small_wins[i], 0, 0);
+                if(obstawianie or IsObstawione){
+
+                    mvwprintw(small_wins[i], 3, 3, " %.2f ", payout1 + payout2);
+                }
                 wattroff(small_wins[i], COLOR_PAIR(color));
                 
                 mvwprintw(small_wins[i], 0, 2, " Mecz %d ", i + 1);
                 wrefresh(small_wins[i]);
                 if(obstawianie){
+
                     napms(800);
                 }
             }
             
-            draw_art_in_smalls(small_wins, NUM_SMALL_WINDOWS, mecze);
+            if (!IsObstawione and !obstawianie){
+                draw_art_in_smalls(small_wins, NUM_SMALL_WINDOWS, mecze);
+            }
+            if (obstawianie) {
+                IsObstawione = true;
+                obstawianie = false;
+            }
 
         }
 
         wrefresh(win);
         wrefresh(win2);
         refresh();
+        mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+        mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+        box(clicked_win, 0, 0);
+        wrefresh(clicked_win);
+        napms(40);
         ch = wgetch(win);
         if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
@@ -256,6 +272,7 @@ int main(int argc, char *argv[]) {
                     if (event.bstate & BUTTON1_CLICKED) {
                         show_details = false;
                         selected_match_index = -1;
+                        current_match = nullptr;
                         werase(details_win);
                         wrefresh(details_win);
                         wrefresh(win2);
@@ -265,26 +282,38 @@ int main(int argc, char *argv[]) {
                 }
                 if (is_inside_button(&toggleBtn, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        show_details = false;
-                        obstawianie = true;
-                        selected_match_index = -1;
-                        werase(details_win);
-                        wrefresh(details_win);
-                        wrefresh(win2);
-                        wrefresh(win);
-                        napms(40);
+                        if(!obstawianie) {
+                            if(IsObstawione){
+                                IsObstawione = false;
+                                for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
+                                    Mecz nowy_mecz(i);
+                                    mecze[i] = nowy_mecz;
+                                    Bet nowy_bet(i, 0, 0);
+                                    bety[i] = nowy_bet;
+                                }
+                            }
+                            else{
+                                show_details = false;
+                                obstawianie = true;
+                            }
+                            
+                            selected_match_index = -1;
+                            werase(details_win);
+                            wrefresh(details_win);
+                            wrefresh(win2);
+                            wrefresh(win);
+                            napms(40);
+                        }
                     }
                 }
                 if (is_inside_button(&add_10_to_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        if (money > 10.0) {
+                        if (current_bet + 10.0 <= money) {
                             current_bet += 10.0;
-                            money -= 10.0;
                         } else {
                             current_bet += money;
-                            money = 0.0;
                         }
-                        werase(clicked_win);
+                        wrefresh(clicked_win);
                         mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
                         mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
                         box(clicked_win, 0, 0);
@@ -294,14 +323,12 @@ int main(int argc, char *argv[]) {
                 }
                 if (is_inside_button(&add_50_to_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        if (money > 50.0) {
+                        if (current_bet + 50.0 <= money) {
                             current_bet += 50.0;
-                            money -= 50.0;
                         } else {
                             current_bet += money;
-                            money = 0.0;
                         }
-                        werase(clicked_win);
+                        wrefresh(clicked_win);
                         mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
                         mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
                         box(clicked_win, 0, 0);
@@ -311,12 +338,10 @@ int main(int argc, char *argv[]) {
                 }
                 if (is_inside_button(&add_100_to_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        if (money> 100.0) {
+                        if (current_bet + 100.0 <= money) {
                             current_bet += 100.0;
-                            money -= 100.0;
                         } else {
                             current_bet += money;
-                            money = 0.0;
                         }
                         wrefresh(clicked_win);
                         mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
@@ -330,9 +355,7 @@ int main(int argc, char *argv[]) {
                     if (event.bstate & BUTTON1_CLICKED) {
                         if (current_bet >= 100.0) {
                             current_bet -= 100.0;
-                            money += 100.0;
                         } else {
-                            money += current_bet;
                             current_bet = 0.0;
                         }
                         wrefresh(clicked_win);
@@ -343,14 +366,11 @@ int main(int argc, char *argv[]) {
                         napms(40);
                     }
                 }
-
                 if (is_inside_button(&sub_50_from_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
                         if (current_bet >= 50.0) {
                             current_bet -= 50.0;
-                            money += 50.0;
                         } else {
-                            money += current_bet;
                             current_bet = 0.0;
                         }
                         wrefresh(clicked_win);
@@ -361,14 +381,11 @@ int main(int argc, char *argv[]) {
                         napms(40);
                     }
                 }
-
                 if (is_inside_button(&sub_10_from_bet, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
                         if (current_bet >= 10.0) {
                             current_bet -= 10.0;
-                            money += 0.0;
                         } else {
-                            money += current_bet;
                             current_bet = 0.0;
                         }
                         wrefresh(clicked_win);
@@ -380,7 +397,58 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 
-                
+                if (show_details) {
+                    rel_x = event.x;
+                    rel_y = event.y;
+                    if (is_inside_button(&betBtn, rel_x, rel_y)) {
+                        if (event.bstate & BUTTON1_CLICKED && current_bet > 0 && current_bet <= money) {
+                            if (current_match == nullptr) {
+                                werase(details_win);
+                                wrefresh(details_win);
+                                napms(40);
+                                continue;
+                            }
+                            if (current_match->getBet1() == 0) {
+                                current_match->set_bet1(current_bet);
+                                money -= current_bet;
+                                wrefresh(clicked_win);
+                                mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                                mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                                box(clicked_win, 0, 0);
+                                wrefresh(clicked_win);
+                                wrefresh(details_win);
+                            }
+                            
+                            napms(40);
+                        }
+                    }
+                    if (is_inside_button(&betBtn2, rel_x, rel_y)) {
+                    
+                    
+                        if (event.bstate & BUTTON1_CLICKED&& current_bet > 0 && current_bet <= money) {
+                            if (current_match == nullptr) {
+                                werase(details_win);
+                                wrefresh(details_win);
+                                napms(40);
+                                continue;
+                            }
+                            if (current_match->getBet2() == 0) {
+                                current_match->set_bet2(current_bet);
+                                money -= current_bet;
+                                wrefresh(clicked_win);
+                                mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", money);
+                                mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                                box(clicked_win, 0, 0);
+                                wrefresh(clicked_win);
+                                wrefresh(details_win);
+                            }
+                            
+                            
+                            napms(40);
+                        }
+                    }
+                }
+            
 
                 for (int i = 0; i < 9; i++) {
                     if(show_details) {
@@ -405,7 +473,7 @@ int main(int argc, char *argv[]) {
         
         }
         
-        napms(50);
+        napms(10);
     }
     
     delwin(win);

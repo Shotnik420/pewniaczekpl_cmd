@@ -116,5 +116,13 @@ void Mecz::set_rand_kurs() {
     this->kurs2 = min_value + (reszta - los);
 }
 void Mecz::set_wynik() {
-    this->wynik = rand() % 2;
+    this->wynik = rand() % 2+1;
+}
+
+
+void Mecz::set_bet1(int value) {
+    bet1 = value;
+}
+void Mecz::set_bet2(int value) {
+    bet2 = value;
 }
