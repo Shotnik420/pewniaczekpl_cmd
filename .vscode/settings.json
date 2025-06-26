@@ -50,7 +50,12 @@
     "text_encoding": "cpp",
     "typeinfo": "cpp",
     "variant": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "codecvt": "cpp",
+    "ratio": "cpp",
+    "iomanip": "cpp",
+    "sstream": "cpp",
+    "fstream": "cpp"
   },
   "C_Cpp.errorSquiggles": "enabled"
 }

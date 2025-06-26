@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <map>
+#include <filesystem>
+#include <fstream>
 
 #include "uibuttons.h"
 #include "./mecze/mecz.h"
@@ -14,10 +16,14 @@
 #include "./player/pilkarz.h"
 #define WIDTH 60
 #define HEIGHT 5
-#define ART_HEIGHT 8
-#define SMALL_W 30
+#define ART_HEIGHT 26
+#define ART_WIDTH 34
 #define SMALL_H 10
-void draw_art_in_smalls(WINDOW *small_wins[], int count, std::map<int, Mecz> mecze);
+
+namespace fs = std::filesystem;
+
+
+void draw_art(WINDOW* window, int which,int x, int y );
 void draw_status_bar(int money, const char *status);
 void draw_logo(WINDOW *win);
 void get_window_global_position(WINDOW *win, int &global_y, int &global_x);
@@ -27,9 +33,12 @@ bool show_details = false;
 bool obstawianie = false;
 bool IsObstawione = false;
 int selected_match_index = -1;
+std::vector<std::string> user_list = {};
+bool user = false;
+std::string current_user = "";
 
 Mecz *current_match = nullptr;
-
+std::string dane_path = "dane";
 int main(int argc, char *argv[]) {
     initialize_players();
     float current_bet = 0.0;
@@ -42,9 +51,6 @@ int main(int argc, char *argv[]) {
     const char *status = "Normalny";
     bool show_ascii = false;
     bool button_focused = false;
-    int NUM_SMALL_WINDOWS = 9;
-    int SMALL_WIN_WIDTH = 28;
-    int SMALL_WIN_HEIGHT = 9;
     initscr();
     cbreak();
     keypad(stdscr, TRUE);
@@ -67,35 +73,31 @@ int main(int argc, char *argv[]) {
     WINDOW *clicked_win = derwin(win,8, 45, 0, 0);
 
     WINDOW *details_win = derwin(win2, win2_height - 2, win2_width - 2, 1, 1);
-    WINDOW *small_wins[NUM_SMALL_WINDOWS];
+    WINDOW *art_win = derwin(details_win, ART_HEIGHT, ART_WIDTH, 1, 1);
+    std::vector<UIButton> buttons;
+    int xpos = 3;
+    for (const auto& entry : fs::directory_iterator(dane_path)) {
+            if (fs::is_directory(entry)) {
+                std::string player_name = entry.path().filename().string();
+                buttons.push_back(create_button(4, xpos, 18, 5, player_name.c_str(), 8));
+                xpos += 8;
+            }
+        }
+    
+
+
+
+    werase(win2);
     draw_logo(win2);
     napms(1000); // WYŚWIETLAMY LOGO
     werase(win2);
     box(win2, 2, 0);
  
-    int cols = 3;
-    int rows = 3;
-    
-    int padding_x = (win2_width - cols * SMALL_WIN_WIDTH) / (cols + 1);
-    int padding_y = (win2_height - rows * SMALL_WIN_HEIGHT) / (rows + 1);
-
-    // Pozycja pierwszego okna względem win2
-    int small_start_x = 2 + padding_x;
-    int small_start_y = 2 + padding_y;
-
-    // Rozmiar każdego małego okienka
-    int win_w = SMALL_WIN_WIDTH;
-    int win_h = SMALL_WIN_HEIGHT;
-
-    // Tworzenie i rysowanie małych okien
-    for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
-        Mecz nowy_mecz(i);
-        mecze[i] = nowy_mecz;
-        Bet nowy_bet(i, 0, 0);
-        bety[i] = nowy_bet;
-    }
-
-
+  
+    Mecz nowy_mecz(1);
+    mecze[1] = nowy_mecz;
+    Bet nowy_bet(1, 0, 0);
+    bety[1] = nowy_bet;
     
 
 
@@ -104,15 +106,16 @@ int main(int argc, char *argv[]) {
     keypad(win2, TRUE);
     keypad(details_win, TRUE);
     
-    ch = wgetch(win);
+    
+    box(win2, 0, 0);    
+
+    
 
 
-     box(win2, 0, 0);
-        
     UIButton toggleBtn = create_button(70, 1, 18, 5, "  Wyniki  ", 102);
     UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
-    UIButton betBtn = create_button(60, 3, 18, 5, "  Bet  ", 8);
-    UIButton betBtn2 = create_button(60, 20, 18, 5, "  Bet  ", 8);
+    UIButton betBtn = create_button(72, 4, 18, 5, "  Bet  ", 8);
+    UIButton betBtn2 = create_button(72, 20, 18, 5, "  Bet  ", 8);
     UIButton add_10_to_bet = create_button(39, 1, 4, 3, "10", 103);
     UIButton add_50_to_bet = create_button(34, 1, 4, 3, "50", 103);
     UIButton add_100_to_bet = create_button(28, 1, 5, 3, "100", 103);
@@ -120,6 +123,188 @@ int main(int argc, char *argv[]) {
     UIButton sub_50_from_bet = create_button(34, 4, 4, 3, "50", 104);
     UIButton sub_100_from_bet = create_button(28, 4, 5, 3, "100", 104);
         
+    
+    
+    werase(details_win);
+    box(details_win, 0, 0);
+    
+
+    while(user == false) { //loop logowania
+
+        mvwprintw(details_win, 2, 40, "FUCK");
+        for (UIButton btn : buttons) {
+            draw_button(details_win, &btn);
+        }
+        ch = wgetch(win2);
+        if (ch == KEY_MOUSE) {
+            if (getmouse(&event) == OK) {
+                int mx = event.x;
+                int my = event.y;
+
+                for (auto& btn : buttons) {
+                    if (is_inside_button(&btn, mx, my)) {
+                        // ✅ Kliknięto przycisk
+                        clear();
+                        
+                        std::string folder_name = btn.text; // lub btn.label, zależnie od twojej struktury
+                        std::string filepath = "./dane/" + folder_name + "/player.txt";
+                        std::string haslo;
+                        std::ifstream file(filepath);
+                        std::string player_name;
+                        if (!file.is_open()) {
+                            mvprintw(2, 1, "Nie mozna otworzyc pliku: %s", filepath.c_str());
+                        } else {
+                            
+                            
+                            file >> player_name >>haslo>> money;
+                        }
+                        
+                        mvprintw(10, 1, "Podaj haslo: ");
+                        refresh();
+                        int c;
+                        echo();
+                        char buffer[256];
+                        int pos = 0;
+                        bool pass_correct = false;
+                        while(!pass_correct){
+                            while ((c = getch()) != '\n' && c != 539 && pos < 255) {
+                                if (c == KEY_BACKSPACE || c == 8) {
+                                    if (pos > 0) {
+                                        pos--;
+                                        mvprintw(10, 14 + pos, " ");
+                                        move(10, 14 + pos);
+                                    }
+                                } else {
+                                    buffer[pos++] = c;
+                                    mvprintw(10, 14 + pos - 1, "*");  // maskuj znak
+                                }
+                                refresh();
+                            }
+                            buffer[pos] = '\0';
+                            std::string entered_password = buffer;
+
+                            if (entered_password == haslo) {
+                                pass_correct = true;
+                                mvprintw(1, 1, "Witaj na Pewniaczek.pl %s!", btn.text);
+                                user = true;
+                                if (player_name == "admin"){
+                                    current_user = "admin";
+                                }
+                            } else {
+                                mvprintw(11, 1, "Bledne haslo, sprobuj ponownie.");
+                                pos = 0; // resetuj pozycje
+                                mvprintw(10, 14, "                    "); // wyczysc wprowadzone znaki
+                                refresh();
+                            }
+
+                        }
+                        
+                        refresh();
+                        
+                    }
+                }
+            }
+        }
+        wrefresh(win2);
+        
+    }
+    werase(win2);
+    box(win2, 0, 0);
+    for (UIButton &btn : buttons) {
+        draw_button(details_win, &btn);
+    }  
+        
+    
+    while (current_user == "admin") { //loop admina
+        ch = wgetch(win2);
+        if (ch == KEY_MOUSE) {
+            if (getmouse(&event) == OK) {
+                int mx = event.x;
+                int my = event.y;
+
+                for (auto& btn : buttons) {
+                    if (is_inside_button(&btn, mx, my)) {
+
+                        clear();
+
+                        std::string folder_name = btn.text;
+                        std::string filepath = "./dane/" + folder_name + "/player.txt";
+
+                        std::ifstream file_in(filepath);
+                        if (!file_in.is_open()) {
+                            std::cerr << "Nie mozna otworzyc pliku: " << btn.text <<"/player.txt"<< "\n";
+                        }
+                        
+                        std::string imie, haslo;
+                        int kasa;
+                        
+                        file_in >> imie >> haslo >> kasa;
+                        file_in.close();
+                        mvprintw(15, 1, " Dodaj kasy uzytkownikowi %s: ", imie.c_str());
+                        refresh();
+                        int c;
+                        noecho();
+                        echo();
+                        char buffer[256];
+                        int pos = 0;
+                        bool pass_correct = false;
+                        int ypos = 16;
+                        bool done = false;
+                        while(!done){
+                            while ((c = getch()) != '\n' && c != 539 && pos < 255) {
+                                if (c == KEY_BACKSPACE || c == 8) {
+                                    if (pos > 0) {
+                                        pos--;
+                                        mvprintw(ypos, 14 + pos, " ");
+                                        move(ypos, 14 + pos);
+                                    }
+                                } else {
+                                    buffer[pos++] = c;
+                                }
+                                refresh();
+                            }
+                            buffer[pos] = '\0';
+                            std::string input_str = buffer;
+                            int liczba = 0;
+                            try {
+                                liczba = std::stoi(input_str);
+                                done = true; 
+                                kasa += liczba;
+                                std::ofstream file_out(filepath);
+                                if (file_out.is_open()) {
+                                    file_out << imie << " " << haslo << " " << kasa << "\n";
+                                    file_out.close();
+                                    mvprintw(ypos + 1, 1, "Dodano %d do konta %s. Nowy stan: %d", liczba, imie.c_str(), kasa);
+                                    refresh();
+                                    napms(2000);
+                                    werase(win2);
+                                    for (UIButton &btn : buttons) {
+                                        draw_button(details_win, &btn);
+                                    } 
+                                    refresh();
+                                }
+                            } catch (...) {
+                                mvprintw(ypos + 1, 1, "Blad: wpisz tylko cyfry");
+                                pos = 0;
+                                memset(buffer, 0, sizeof(buffer));
+                                mvprintw(ypos, 14, std::string(40, ' ').c_str()); // wyczyść pole
+                                move(ypos, 14);
+                            }
+                        }
+                        
+                        refresh();
+                        
+                    }
+                }
+            }
+        }
+        wrefresh(win2);
+    } 
+
+
+    box(art_win, 0, 0);
+    box(clicked_win, 0, 0);
+    
     draw_button(win, &toggleBtn);
     draw_button(win, &add_10_to_bet);
     draw_button(win, &add_50_to_bet);
@@ -127,28 +312,33 @@ int main(int argc, char *argv[]) {
     draw_button(win, &sub_10_from_bet);
     draw_button(win, &sub_50_from_bet);
     draw_button(win, &sub_100_from_bet);
-
-    while(ch != 27) { //loop
-        if (show_details) {
+    wrefresh(win);
+    while(ch != 27) { //loop GRY
+        if (!show_details) {
             draw_button(win, &detailsGobackBtn);
             
-            wrefresh(win);
-            werase(details_win);
-            box(details_win, 0, 0);
-            Mecz &mecz = mecze[selected_match_index];
+            
+            
+            Mecz &mecz = nowy_mecz;
             current_match = &mecz;
-            mvwprintw(details_win, 8, 6, mecz.getOpponent1().c_str());
-            mvwprintw(details_win, 18, 6, mecz.getOpponent2().c_str());
+            draw_art(art_win, mecz.getType(), 1, 1);
+            
+            wattr_on(details_win, A_BOLD, nullptr);
+            mvwprintw(details_win, 2, 40, mecz.getOpponent1().c_str());
+            mvwprintw(details_win, 3, 40, "---------------------------");
+            mvwprintw(details_win, 18, 40, mecz.getOpponent2().c_str());
+            mvwprintw(details_win, 19, 40, "---------------------------");
+            wattr_off(details_win, A_BOLD,nullptr);
             short color1 = get_border_color(mecz.getKurs1(),0.0);
             short color2 = get_border_color(mecz.getKurs2(),0.0);
             wattron(details_win, COLOR_PAIR(color1));
-            mvwprintw(details_win, 11, 60, "|%.2f", mecz.getKurs1());
+            mvwprintw(details_win, 2, 63, "%.2f", mecz.getKurs1());
             wattroff(details_win, COLOR_PAIR(color1));
             wattron(details_win, COLOR_PAIR(color2));
-            mvwprintw(details_win, 15, 60, "|%.2f", mecz.getKurs2());
+            mvwprintw(details_win, 18, 63, "%.2f", mecz.getKurs2());
             wattroff(details_win, COLOR_PAIR(color2));
-            mvwprintw(details_win, 11, 80, "|%i", mecz.getBet1());
-            mvwprintw(details_win, 15, 80, "|%i", mecz.getBet2());
+            mvwprintw(details_win, 9, 80, "%i", mecz.getBet1());
+            mvwprintw(details_win, 25, 80, "%i", mecz.getBet2());
             for(int i = 0; i < 5; ++i) {
                 if (i < mecz.getOpponents1team().size()) {
                     auto currentPlayer = mecz.getOpponents1team()[i];
@@ -162,13 +352,13 @@ int main(int argc, char *argv[]) {
                     }
                     
                     wattron(details_win, COLOR_PAIR(colorpair));
-                    mvwprintw(details_win, 4 + i, 30, "%s", currentPlayer.getName().c_str());
-                    mvwprintw(details_win, 4 + i, 50, "%.2f", currentPlayer.getSkillFootball());
+                    mvwprintw(details_win, 4 + i, 40, "%s", currentPlayer.getName().c_str());
+                    mvwprintw(details_win, 4 + i, 63, "%.2f", currentPlayer.getSkillFootball());
                     wattroff(details_win, COLOR_PAIR(colorpair));
 
 
                 } else {
-                    mvwprintw(details_win, 4 + i, 30, "Brak", i + 1);
+                    mvwprintw(details_win, 4 + i, 40, "Brak", i + 1);
                 }
                 if (i < mecz.getOpponents2team().size()) {
                     auto currentPlayer = mecz.getOpponents2team()[i];
@@ -182,75 +372,20 @@ int main(int argc, char *argv[]) {
                     }
                     
                     wattron(details_win, COLOR_PAIR(colorpair));
-                    mvwprintw(details_win, 18 + i, 30, mecz.getOpponents2team()[i].getName().c_str());
+                    mvwprintw(details_win, 20 + i, 40, mecz.getOpponents2team()[i].getName().c_str());
+                    mvwprintw(details_win, 20 + i, 63, "%.2f", currentPlayer.getSkillFootball());
                     wattroff(details_win, COLOR_PAIR(colorpair));
                 } else {
-                    mvwprintw(details_win, 18 + i, 30, "Brak");
+                    mvwprintw(details_win, 20 + i, 40, "Brak");
                 }
             }
             
             draw_button(details_win, &betBtn);
             draw_button(details_win, &betBtn2);
             wrefresh(details_win);
-            ch = wgetch(details_win);
+            
            
         
-        } else {
-            for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
-                
-                int row = i / cols;
-                int col = i % cols;
-
-                int win_y = 1 + padding_y + row * (SMALL_WIN_HEIGHT + padding_y);
-                int win_x = 1 + padding_x + col * (SMALL_WIN_WIDTH + padding_x);
-                
-
-                small_wins[i] = derwin(win2, SMALL_WIN_HEIGHT, SMALL_WIN_WIDTH, win_y, win_x);
-                short color = get_border_color(mecze[i].getKurs1(), mecze[i].getKurs2());
-                float payout1 = 0.0;
-                float payout2 = 0.0;
-                if(obstawianie or IsObstawione){
-                    Mecz &current_mecz = mecze[i];
-                    if (current_mecz.getWynik() != 0) {
-                        float invested = current_mecz.getBet1() + current_mecz.getBet2();
-                        payout1 = current_mecz.getPayout1();
-                        payout2 = current_mecz.getPayout2();
-                        money += payout1 + payout2;
-                        if (payout1 > invested || payout2 > invested) {
-                            color = 103; 
-                        } else if (payout1 <= invested && payout2 <= invested) {
-                            color = 104; // czerwony
-                        } 
-                        
-                    } 
-                }else{
-                    short color = get_border_color(mecze[i].getKurs1(), mecze[i].getKurs2());
-                }
-                
-                wattron(small_wins[i], COLOR_PAIR(color)); 
-                box(small_wins[i], 0, 0);
-                if(obstawianie or IsObstawione){
-
-                    mvwprintw(small_wins[i], 3, 3, " %.2f ", payout1 + payout2);
-                }
-                wattroff(small_wins[i], COLOR_PAIR(color));
-                
-                mvwprintw(small_wins[i], 0, 2, " Mecz %d ", i + 1);
-                wrefresh(small_wins[i]);
-                if(obstawianie){
-
-                    napms(800);
-                }
-            }
-            
-            if (!IsObstawione and !obstawianie){
-                draw_art_in_smalls(small_wins, NUM_SMALL_WINDOWS, mecze);
-            }
-            if (obstawianie) {
-                IsObstawione = true;
-                obstawianie = false;
-            }
-
         }
 
         wrefresh(win);
@@ -269,7 +404,7 @@ int main(int argc, char *argv[]) {
                
                
                 if (is_inside_button(&detailsGobackBtn, rel_x, rel_y)) {
-                    if (event.bstate & BUTTON1_CLICKED) {
+                    if ((event.bstate & BUTTON1_CLICKED) && show_details) {
                         show_details = false;
                         selected_match_index = -1;
                         current_match = nullptr;
@@ -282,28 +417,7 @@ int main(int argc, char *argv[]) {
                 }
                 if (is_inside_button(&toggleBtn, rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
-                        if(!obstawianie) {
-                            if(IsObstawione){
-                                IsObstawione = false;
-                                for (int i = 0; i < NUM_SMALL_WINDOWS; ++i) {
-                                    Mecz nowy_mecz(i);
-                                    mecze[i] = nowy_mecz;
-                                    Bet nowy_bet(i, 0, 0);
-                                    bety[i] = nowy_bet;
-                                }
-                            }
-                            else{
-                                show_details = false;
-                                obstawianie = true;
-                            }
-                            
-                            selected_match_index = -1;
-                            werase(details_win);
-                            wrefresh(details_win);
-                            wrefresh(win2);
-                            wrefresh(win);
-                            napms(40);
-                        }
+                       
                     }
                 }
                 if (is_inside_button(&add_10_to_bet, rel_x, rel_y)) {
@@ -397,7 +511,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 
-                if (show_details) {
+                if (!show_details) {
                     rel_x = event.x;
                     rel_y = event.y;
                     if (is_inside_button(&betBtn, rel_x, rel_y)) {
@@ -450,25 +564,6 @@ int main(int argc, char *argv[]) {
                 }
             
 
-                for (int i = 0; i < 9; i++) {
-                    if(show_details) {
-                        break;
-                    }
-                    int win_y = small_start_y + (i / cols) * (win_h + padding_y);
-                    int win_x = small_start_x + (i % cols) * (win_w + padding_x);
-
-                    if (event.y >= win_y && event.y < win_y + win_h &&
-                        event.x >= win_x && event.x < win_x + win_w) {
-                        
-                        
-                        
-                        show_details = true;
-                        selected_match_index = i;
-                        
-                        wrefresh(win2);
-                        break;
-                    }
-                }
             }
         
         }
@@ -482,7 +577,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void draw_art_in_smalls(WINDOW *small_wins[], int count, std::map<int, Mecz> mecze) {
+void draw_art(WINDOW* window, int which,int x, int y ) {
     const char *bb[] = {
         "|__  o\\",
         "| W    \\O",
@@ -504,17 +599,27 @@ void draw_art_in_smalls(WINDOW *small_wins[], int count, std::map<int, Mecz> mec
         
     };
 
-    for (int i = 0; i < count; i++) {
+    const char **art;
+    int lines = 0;
 
-        const char **art = (mecze[i].getType() == 0) ? bb : fb;
-        int lines = (mecze[i].getType() == 0) ? sizeof(bb) / sizeof(bb[0]) : sizeof(fb) / sizeof(fb[0]);
-
-        for (int y = 0; y < lines && y + 1 < 9; y++) {
-            mvwprintw(small_wins[i], 1 + y, 1, "%s", art[y]);
-        }
-
-        wrefresh(small_wins[i]);
+    switch (which)
+    {
+    case 0:
+        art = bb;
+        lines = 7;
+        break;
+    case 1:
+        art = fb;
+        lines = 6;
+        break;
+    default:
+        art = fb;
     }
+
+    for (int i = 0; i<lines; ++i) {
+        mvwprintw(window, y + i, x, "%s", art[i]);
+    }
+    
 }
 
 void draw_status_bar(int money, const char *status) {

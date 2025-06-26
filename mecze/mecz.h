@@ -21,10 +21,10 @@ public:
     Mecz() : nazwa(""), opponent1(""), opponent2(""), kurs1(0.1), kurs2(0.1), MID(0) {}
     Mecz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2, int MID);
     Mecz(int MID);
-
+    ~Mecz() = default;
     std::string getName() const;
     int getMID() const;
-    void changeMID(int value);\
+    void changeMID(int value);
     int getType() const;
     float getKurs1() const;
     float getKurs2() const;
