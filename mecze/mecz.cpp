@@ -107,18 +107,47 @@ void Mecz::set_rand_type() {
 }
 
 void Mecz::set_rand_kurs() {
-    float kurs = 2.0f + static_cast<float>(rand()) / RAND_MAX * 2.0f;
-    float min_value = 1.0f;
-    float reszta = kurs - 2.0f;  
-    float los = static_cast<float>(rand()) / RAND_MAX * reszta;
+    float t1Skill = 0.0;
+    float t2Skill = 0.0;
 
-    this->kurs1 = min_value + los;
-    this->kurs2 = min_value + (reszta - los);
+    for(Player player : opponents1team){
+        float needed_skill = 0.0;
+        switch(get_needed_skill()){
+            case 1:
+                needed_skill = player.getSkillFootball();
+                break;
+            case 2:
+                needed_skill = player.getSkillBasketball();
+                break;
+        }
+        t1Skill += needed_skill;
+    }
+    for(Player player : opponents2team){
+        float needed_skill = 0.0;
+        switch(get_needed_skill()){
+            case 1:
+                needed_skill = player.getSkillFootball();
+                break;
+            case 2:
+                needed_skill = player.getSkillBasketball();
+                break;
+        }
+        t2Skill += needed_skill;
+    }
+
+    float chance = t1Skill/(t2Skill+t1Skill);
+
+    // float kurs = 2.0f + static_cast<float>(rand()) / RAND_MAX * 2.0f;
+    // float min_value = 1.0f;
+    // float reszta = kurs - 2.0f;  
+    // float los = static_cast<float>(rand()) / RAND_MAX * reszta;
+
+    this->kurs1 = 1/chance;
+    this->kurs2 = 1/(1-chance);
 }
 void Mecz::set_wynik() {
     this->wynik = rand() % 2+1;
 }
-
 
 void Mecz::set_bet1(int value) {
     bet1 = value;
@@ -126,3 +155,17 @@ void Mecz::set_bet1(int value) {
 void Mecz::set_bet2(int value) {
     bet2 = value;
 }
+
+// std::string Mecz::get_next_play(){
+//     if(pilka_owner == 0){
+//         srand(NULL);
+//         int posiadacz = 0;
+//         if(rand()%2==0){
+//             posiadacz = opponents1team[rand() % 5]; 
+//         }else{
+//             posiadacz = opponents2team[rand() % 5];
+//         }
+        
+//         return "Zaczyna się mecz! Grę rozpoczyna  "
+//     }
+// }

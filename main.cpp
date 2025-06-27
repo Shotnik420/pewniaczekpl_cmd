@@ -301,10 +301,11 @@ int main(int argc, char *argv[]) {
         wrefresh(win2);
     } 
 
-
+    werase(win2);
     box(art_win, 0, 0);
     box(clicked_win, 0, 0);
-    
+    box(win2,0,0);
+
     draw_button(win, &toggleBtn);
     draw_button(win, &add_10_to_bet);
     draw_button(win, &add_50_to_bet);
@@ -313,6 +314,7 @@ int main(int argc, char *argv[]) {
     draw_button(win, &sub_50_from_bet);
     draw_button(win, &sub_100_from_bet);
     wrefresh(win);
+    
     while(ch != 27) { //loop GRY
         if (!show_details) {
             draw_button(win, &detailsGobackBtn);

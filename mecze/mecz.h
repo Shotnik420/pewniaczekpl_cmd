@@ -17,11 +17,13 @@ private:
     int MID;
     int bet1 = 0;
     int bet2 = 0;
+
+    int pilka_owner = 0;
 public:
     Mecz() : nazwa(""), opponent1(""), opponent2(""), kurs1(0.1), kurs2(0.1), MID(0) {}
     Mecz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2, int MID);
     Mecz(int MID);
-    ~Mecz() = default;
+    
     std::string getName() const;
     int getMID() const;
     void changeMID(int value);
@@ -49,6 +51,10 @@ public:
         }
         return 0.0f;
     }
+    virtual int get_needed_skill() const { return 1; };
+    
+    // virtual std::string get_next_play();
+    virtual ~Mecz() = default;
 private:
     void set_name();
     void set_random_opponentsteam();
