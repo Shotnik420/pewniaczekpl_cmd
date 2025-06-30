@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <ostream>
 enum class PlayerType {
     Unknown,
     Koszykarz,
@@ -17,12 +18,11 @@ private:
     float skill_basketball;
     float skill_tennis;
 
-    int concussion_day_left = 0;
     
     int type = 0;
 
 public:
-    Player(int PID, std::string name, float skill_football, float skill_basketball, float skill_tennis, int concussion_day_left = 0, int type = 0);
+    Player(int PID, std::string name, float skill_football, float skill_basketball, int type = 0);
     Player();
 
     ~Player() = default;
@@ -40,18 +40,43 @@ public:
     float getSkillTennis() const {
         return skill_tennis; 
     }
-    int getConcussionDayLeft() const {
-        return concussion_day_left; 
-    }
-
     int getType() const {
         return type; 
+    }
+
+    void setSkillFootball(float skill) {
+        skill_football = skill; 
+    }
+    void setSkillBasketball(float skill) {
+        skill_basketball = skill; 
     }
 
     virtual float getBonus() const {
         return 0.0f; 
     }
-    virtual PlayerType getPlayerType() const { return PlayerType::Unknown; };
+
+    virtual int get_color() const {
+        return 0; 
+    }
+
+    //Operator overload dla pomocy zapisywania gracza do pliku;
+
+    friend std::ostream& operator<<(std::ostream& os, const Player& player) {
+        std::string player_type;
+        if (player.getType() == 1){
+            player_type = "Pilkarz";
+        } else if(player.getType() == 2){
+            player_type = "Koszykarz";
+        }
+
+        
+        os << player.getPID() << " " << player.getName() << ","
+        << player_type << " " << player.getSkillBasketball() << " "
+        << player.getSkillFootball() << " "
+        <<"\n";
+        return os;
+    }
+
 };
 
 

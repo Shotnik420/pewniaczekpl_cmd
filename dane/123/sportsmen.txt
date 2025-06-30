@@ -1,0 +1,26 @@
+1 Janusz Wieprzowina,Koszykarz 0.33 0.97 
+
+2 Knur Knurek,Koszykarz 0.9 0.7 
+
+3 Szakal Mongol,Koszykarz 0.8 0.5 
+
+4 Tymone Rudyjui,Koszykarz 0.6 0.5 
+
+5 Freaky Zopa,Koszykarz 0.7 0.9 
+
+6 Gruby Ztefdwa,Koszykarz 0.7 0.4 
+
+7 Ulrich Jungingen,Pilkarz 0.4 0.9 
+
+8 Polski Vip,Pilkarz 0.9 0.3 
+
+9 Chlebak Kacper,Pilkarz 0.8 0.6 
+
+10 Tkaczyński Patricio,Pilkarz 0.6 0.9 
+
+11 Michal Pawlak,Pilkarz 0.5 0.8 
+
+12 Natalia Krol,Pilkarz 0.4 0.9 
+
+13 Marcin Szymanski,Pilkarz 0.3 0.5 
+

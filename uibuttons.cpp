@@ -6,9 +6,16 @@
 #define DEFAULT_BORDER 1
 #define UNPLAYED 3
 #define COLOR_BRIGHT_YELLOW 8
+#define ORANGE 102
+#define DARKBLUE 101
+#define LIGHTBLUE 100
+#define GREEN 103
+#define RED 104
+#define LIGHTGREEN 105
+#define LIGHTBLUE2 106
+#define LIGHTORANGE 107
 
-
-void init_ui_colors() {
+void init_ui_colors() { // Tworzenie nowych par kolorów
     start_color();
 
     // Niestandardowe kolory
@@ -38,6 +45,7 @@ void init_ui_colors() {
 }
 
 
+//// Funkcja tworząca nowy przycisk
 UIButton create_button(int x, int y, int w, int h, const char* text, int border_color) {
     UIButton btn;
     btn.xpos = x;
@@ -51,7 +59,7 @@ UIButton create_button(int x, int y, int w, int h, const char* text, int border_
     return btn;
 }
 
-
+// Funkcja rysująca przycisk
 void draw_button(WINDOW* win, UIButton* btn) {
     if (!btn->visible) return;
     
@@ -82,6 +90,7 @@ void draw_button(WINDOW* win, UIButton* btn) {
     }
 }
 
+//Czy kursor myszy znajduje się wewnątrz przycisku
 bool is_inside_button(UIButton* btn, int x, int y) {
     return (x >= btn->xpos && x < btn->xpos + btn->width &&
             y >= btn->ypos && y < btn->ypos + btn->height);

@@ -33,7 +33,9 @@
         "uibuttons.cpp",
         "mecze/mecz.cpp",
         "player/player.cpp",
-        "bet/bet.cpp",
+        "user/user.cpp",
+        "mecze/pilka.cpp",
+        "mecze/kosz.cpp",
         "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe",
         "-lpdcurses"

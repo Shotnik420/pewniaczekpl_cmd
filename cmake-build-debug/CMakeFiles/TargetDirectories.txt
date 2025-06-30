@@ -1,3 +1,0 @@
-K:/Dokumenty/gameprojecty/cmake-build-debug/CMakeFiles/gameprojecty.dir
-K:/Dokumenty/gameprojecty/cmake-build-debug/CMakeFiles/edit_cache.dir
-K:/Dokumenty/gameprojecty/cmake-build-debug/CMakeFiles/rebuild_cache.dir
