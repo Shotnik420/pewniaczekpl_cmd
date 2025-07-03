@@ -371,6 +371,11 @@ int main(int argc, char *argv[]) {
         napms(40);
 
         if(finished){ // Wyświetlanie infoboxa po zakończeniu meczu
+            box(alert_win, 0, 0);
+            mvwprintw(alert_win, 2, 18, "Wygrywa %s", 
+            current_match->getWynik1() > current_match->getWynik2() ? 
+            current_match->getOpponent1().c_str() : 
+            current_match->getOpponent2().c_str());
             int wynik = current_match->getWynik1() - current_match->getWynik2();
             int invested = current_match->getBet1() + current_match->getBet2();
             std::string message = "";
@@ -378,17 +383,10 @@ int main(int argc, char *argv[]) {
             if (invested - payout > 0) {
                 message = "Przegrales " + std::to_string(-invested);
             }else if (invested - payout < 0) {
-                current_user.setMoney(current_user.getMoney() + payout);
                 message = "Wygrales " + std::to_string(payout);
             }else {
                 message = "Nie wygrales, nie straciles";
             }
-            werase(alert_win);
-            box(alert_win, 0, 0);
-            mvwprintw(alert_win, 2, 18, "Wygrywa %s", 
-                current_match->getWynik1() > current_match->getWynik2() ? 
-                current_match->getOpponent1().c_str() : 
-                current_match->getOpponent2().c_str());
             
             mvwprintw(alert_win, 4, 18, message.c_str());
             draw_button(alert_win, &alertBackBtn);
@@ -458,7 +456,14 @@ int main(int argc, char *argv[]) {
                         } else if (current_match->getWynik2() > current_match->getWynik1()) {
 
                             mvwprintw(art_win, line, 0, "Wygrywa %s", current_match->getOpponent2().c_str());
-                        } 
+                        }
+                        int invested = current_match->getBet1() + current_match->getBet2();
+                        int payout = current_match->getPayout1() + current_match->getPayout2();
+                        if (invested - payout < 0) {
+                            current_user.setMoney(current_user.getMoney() + payout);
+                        }
+
+
                         matchOngoing = false;
                         finished = true;
                         }
@@ -619,6 +624,8 @@ int main(int argc, char *argv[]) {
                                 static Pilka mecz;
                                 current_match = &mecz;
                             }
+                            current_match->set_bet1(0);
+                            current_match->set_bet2(0);
                             draw_tables(details_win, *current_match, finished);
                             wrefresh(details_win);
                             overwrite(details_win, stdscr);

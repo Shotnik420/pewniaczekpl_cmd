@@ -46,10 +46,11 @@ void initialize_players(std::string user_name) {
     all_players.push_back(std::make_unique<Pilkarz>(7, "Ulrich Jungingen", 0.8, 0.4));
     all_players.push_back(std::make_unique<Pilkarz>(8, "Polski Vip", 0.3, 0.9));
     all_players.push_back(std::make_unique<Pilkarz>(9, "Chlebak Kacper", 0.6, 0.8));
-    all_players.push_back(std::make_unique<Pilkarz>(10, "Tkaczyński Patricio", 0.7, 0.6));
+    all_players.push_back(std::make_unique<Pilkarz>(10, "Tkaczynski Patricio", 0.7, 0.6));
     all_players.push_back(std::make_unique<Pilkarz>(11, "Koszmarny Karolek", 0.8, 0.5));
     all_players.push_back(std::make_unique<Pilkarz>(12, "Kamil Caputa", 0.9, 0.4));
     all_players.push_back(std::make_unique<Pilkarz>(13, "DJKhaled", 0.5, 0.3));
+    all_players.push_back(std::make_unique<Koszykarz>(14, "Polski Mlot", 0.1, 2.1));
 }
 
 

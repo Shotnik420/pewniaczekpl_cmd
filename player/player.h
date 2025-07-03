@@ -16,7 +16,6 @@ private:
     
     float skill_football;
     float skill_basketball;
-    float skill_tennis;
 
     
     int type = 0;
@@ -36,9 +35,6 @@ public:
     }
     float getSkillBasketball() const {
         return skill_basketball; 
-    }
-    float getSkillTennis() const {
-        return skill_tennis; 
     }
     int getType() const {
         return type; 

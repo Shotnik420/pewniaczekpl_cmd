@@ -4,51 +4,19 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
-Mecz::Mecz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2, int MID)
-    : MID(MID), nazwa(nazwa), opponent1(opponent1), opponent2(opponent2), kurs1(kurs1), kurs2(kurs2)
+Mecz::Mecz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2, int type)
+    :  nazwa(nazwa), opponent1name(opponent1), opponent2name(opponent2), kurs1(kurs1), kurs2(kurs2), type(type)
 {
     set_random_team_names();
     set_random_opponentsteam();
-    set_name();
+    make_name();
     set_rand_kurs();
     team1_skill_change.resize(5, 0.0f);
     team2_skills_change.resize(5, 0.0f);
     
 }
-Mecz::Mecz(int MID) : MID(MID) {
-    set_random_team_names();
-    set_random_opponentsteam();
-    set_name();
-    set_rand_kurs();
-    team1_skill_change.resize(5, 0.0f);
-    team2_skills_change.resize(5, 0.0f);
 
-}
 
-std::string Mecz::getName() const {
-    return nazwa;
-}
-int Mecz::getMID() const {
-    return MID;
-}
-
-int Mecz::getType() const {
-    return type;
-}
-
-float Mecz::getKurs1() const {
-    return kurs1;
-}
-float Mecz::getKurs2() const {
-    return kurs2;
-}
-
-std::string Mecz::getOpponent1() const {
-    return opponent1;
-}
-std::string Mecz::getOpponent2() const {
-    return opponent2;
-}
 
 std::string Mecz::get_player_name(int id)
 {
@@ -68,21 +36,11 @@ Player* Mecz::get_player(int id) {
     throw std::runtime_error("Player with ID " + std::to_string(id) + " not found.");
 }
 
-std::string get_player_name(int id) {
-    for (const auto& player : all_players) {
-        if (player->getPID() == id) {
-            return player->getName();
-        }
-    }
-    return std::string("Nieznany gracz");
-}
 
-void Mecz::changeMID(int value) {
-    MID = value;
-}
 
-void Mecz::set_name() {
-    this->nazwa = opponent1 + " vs " + opponent2;
+
+void Mecz::make_name() {
+    this->nazwa = opponent1name + " vs " + opponent2name;
 }
 void Mecz::set_random_opponentsteam() {
     
@@ -119,8 +77,8 @@ void Mecz::set_random_team_names() {
         do {
             team2 = team_names[rand() % team_names.size()];
         } while (team2 == team1);
-    this->opponent1 = team1;
-    this->opponent2 = team2;
+    this->opponent1name = team1;
+    this->opponent2name = team2;
 }
 
 

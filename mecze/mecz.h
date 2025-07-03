@@ -6,8 +6,8 @@
 class Mecz {
 private:
     std::string nazwa;
-    std::string opponent1;
-    std::string opponent2;
+    std::string opponent1name;
+    std::string opponent2name;
     std::vector<Player*> opponents1team;
     std::vector<Player*> opponents2team;
 
@@ -19,33 +19,50 @@ private:
     float kurs2;
     int wynik1 = 0;
     int wynik2 = 0;
-    int MID;
     int bet1 = 0;
     int bet2 = 0;
 
 
     
 public:
-    Mecz() : nazwa(""), opponent1(""), opponent2(""), kurs1(0.1), kurs2(0.1), type(0) {}
+    Mecz() : nazwa(""), opponent1name(""), opponent2name(""), kurs1(0.1), kurs2(0.1), type(0) {}
     Mecz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2, int type);
-    Mecz(int MID);
-    
-    std::string getName() const;
-    int getMID() const;
-    void changeMID(int value);
-    int getType() const;
+
+
+
     int pilka_owner = 0;
     int pilka_taker = 0;
     int pilka_state = 0; // 0 - Pasywny, 1 - Aktywny, 2 - Podanie, 3 - Strzał
     int pilka_owner_team = 0;
-    float getKurs1() const;
-    float getKurs2() const;
-    std::string getOpponent1() const;
-    std::string getOpponent2() const;
+
+
     std::string get_player_name(int id);
     std::vector<Player*> getOpponents1team() const { return opponents1team; }
     std::vector<Player*> getOpponents2team() const { return opponents2team; }
     int getWynik() const;
+
+    std::string getName() const {
+        return nazwa;
+    }
+
+    int getType() const {
+        return type;
+    }
+
+    float getKurs1() const {
+        return kurs1;
+    }
+    float getKurs2() const {
+        return kurs2;
+    }
+
+    std::string getOpponent1() const {
+        return opponent1name;
+    }
+    std::string getOpponent2() const {
+        return opponent2name;
+    }
+
     void set_bet1(int value);
     void set_bet2(int value);
     int getBet1() const { return bet1; }
@@ -85,7 +102,7 @@ public:
         return team2_skills_change;
     }
     std::pair<int, int> find_player_team_and_index(int id);
-    void set_name();
+    void make_name();
     void set_random_opponentsteam();
     void set_random_team_names();
     void set_rand_kurs();

@@ -13,16 +13,15 @@ public:
     int width;
     int height;
     char* text;
-    bool focused;
     bool visible;
     int border_color_pair;
 
     UIButton(int x, int y, int w, int h, const char* text, int border_color)
-        : xpos(x), ypos(y), width(w), height(h), focused(false), visible(true), border_color_pair(border_color) {
+        : xpos(x), ypos(y), width(w), height(h), visible(true), border_color_pair(border_color) {
         this->text = strdup(text); // Alokacja pamięci dla tekstu
     }
 
-    UIButton() : xpos(0), ypos(0), width(0), height(0), text(nullptr), focused(false), visible(true), border_color_pair(0) {
+    UIButton() : xpos(0), ypos(0), width(0), height(0), text(nullptr), visible(true), border_color_pair(0) {
         // Domyślny konstruktor
     }
 
@@ -38,5 +37,4 @@ public:
     // Sprawdza czy pozycja (x,y) jest wewnątrz przycisku
     bool is_inside_button(UIButton* btn, int x, int y);
 
-    void free_button(UIButton* btn);
 #endif

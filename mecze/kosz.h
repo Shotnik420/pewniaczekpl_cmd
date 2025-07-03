@@ -10,6 +10,7 @@ public:
     Kosz(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2);
     Kosz();
     ~Kosz() override;
+    int get_needed_skill() const override { return 2; } // Koszykówka wymaga umiejętności koszykarskich
     std::string get_next_play() override;
 };
 

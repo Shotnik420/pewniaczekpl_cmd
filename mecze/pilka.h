@@ -10,6 +10,7 @@ public:
     Pilka(std::string nazwa, std::string opponent1, std::string opponent2, float kurs1, float kurs2);
     Pilka();
     ~Pilka() override;
+    int get_needed_skill() const override { return 1; } // Piłka nożna wymaga umiejętności piłkarskich
     std::string get_next_play() override;
 };
 

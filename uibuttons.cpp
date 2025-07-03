@@ -47,15 +47,7 @@ void init_ui_colors() { // Tworzenie nowych par kolorów
 
 //// Funkcja tworząca nowy przycisk
 UIButton create_button(int x, int y, int w, int h, const char* text, int border_color) {
-    UIButton btn;
-    btn.xpos = x;
-    btn.ypos = y;
-    btn.width = w;
-    btn.height = h;
-    btn.text = strdup(text); // Alokacja pamięci dla tekstu
-    btn.focused = false;
-    btn.visible = true;
-    btn.border_color_pair = border_color;
+    UIButton btn(x,y,w,h,text,border_color);
     return btn;
 }
 
@@ -75,19 +67,13 @@ void draw_button(WINDOW* win, UIButton* btn) {
         for (int x = btn->xpos; x < btn->xpos + btn->width; x++) {
             if (y == btn->ypos || y == btn->ypos + btn->height - 1 ||
                 x == btn->xpos || x == btn->xpos + btn->width - 1) {
-                mvwaddch(win, y, x, btn->focused ? '#' : '*');
+                mvwaddch(win, y, x, '*');
             }
         }
     }
     wattroff(win, COLOR_PAIR(btn->border_color_pair));
     // Rysuj tekst
-    if (btn->focused) {
-        wattron(win, A_REVERSE);
-    }
     mvwprintw(win, text_y, text_x, "%s", btn->text);
-    if (btn->focused) {
-        wattroff(win, A_REVERSE);
-    }
 }
 
 //Czy kursor myszy znajduje się wewnątrz przycisku
@@ -96,6 +82,3 @@ bool is_inside_button(UIButton* btn, int x, int y) {
             y >= btn->ypos && y < btn->ypos + btn->height);
 }
 
-void free_button(UIButton* btn) {
-    free(btn->text); // Zwolnienie zaalokowanej pamięci
-}
