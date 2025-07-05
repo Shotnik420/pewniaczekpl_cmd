@@ -115,8 +115,9 @@ int main(int argc, char *argv[]) {
     UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
 
     //Deklaracja przycisków do zakładów
-    UIButton betBtn = create_button(72, 4, 18, 5, "  Postaw  ", 8);
-    UIButton betBtn2 = create_button(72, 20, 18, 5, "  Postaw  ", 8);
+    UIButton betBtn = create_button(72, 4, 18, 5, "  Postaw na druzyne  ", 8);
+    UIButton betBtnRemis = create_button(72, 12, 18, 5, "  Postaw na remis  ", 8);
+    UIButton betBtn2 = create_button(72, 20, 18, 5, "  Postaw na druzyne  ", 8);
     UIButton add_50_to_bet = create_button(39, 1, 4, 3, "50", 103);
     UIButton add_100_to_bet = create_button(34, 1, 4, 3, "100", 103);
     UIButton add_500_to_bet = create_button(28, 1, 5, 3, "500", 103);
@@ -352,6 +353,7 @@ int main(int argc, char *argv[]) {
             draw_tables(details_win, *current_match, finished);
                         
             draw_button(details_win, &betBtn);
+            draw_button(details_win, &betBtnRemis);
             draw_button(details_win, &betBtn2);
             wrefresh(details_win);
             
@@ -379,7 +381,7 @@ int main(int argc, char *argv[]) {
             int wynik = current_match->getWynik1() - current_match->getWynik2();
             int invested = current_match->getBet1() + current_match->getBet2();
             std::string message = "";
-            int payout = current_match->getPayout1() + current_match->getPayout2();
+            int payout = current_match->getPayout();
             if (invested - payout > 0) {
                 message = "Przegrales " + std::to_string(-invested);
             }else if (invested - payout < 0) {
@@ -457,8 +459,8 @@ int main(int argc, char *argv[]) {
 
                             mvwprintw(art_win, line, 0, "Wygrywa %s", current_match->getOpponent2().c_str());
                         }
-                        int invested = current_match->getBet1() + current_match->getBet2();
-                        int payout = current_match->getPayout1() + current_match->getPayout2();
+                        int invested = current_match->getBet1() + current_match->getBet2() + current_match->getBetRemis();
+                        int payout = current_match->getPayout();
                         if (invested - payout < 0) {
                             current_user.setMoney(current_user.getMoney() + payout);
                         }
@@ -539,6 +541,33 @@ int main(int argc, char *argv[]) {
                             napms(40);
                         }
                     }
+
+                    if (is_inside_button(&betBtnRemis, rel_x, rel_y)) {
+                        if (event.bstate & BUTTON1_CLICKED && 
+                            current_bet > 0 && current_bet <= current_user.getMoney() && 
+                            !finished && !matchOngoing) {
+                            if (current_match == nullptr) {
+                                werase(details_win);
+                                wrefresh(details_win);
+                                napms(40);
+                                continue;
+                            }
+                            if (current_match->getBetRemis() == 0) {
+                                current_match->set_betRemis(current_bet);
+                                
+                                current_user.setMoney(current_user.getMoney() - current_bet);
+                                wrefresh(clicked_win);
+                                mvwprintw(clicked_win, 2, 4, "Saldo: %.2f", current_user.getMoney());
+                                mvwprintw(clicked_win, 4, 4, "Obecny zaklad: %.2f", current_bet);
+                                box(clicked_win, 0, 0);
+                                wrefresh(clicked_win);
+                                wrefresh(details_win);
+                            }
+                            
+                            napms(40);
+                        }
+                    }
+
                     if (is_inside_button(&betBtn2, rel_x, rel_y)) {
                     
                     
@@ -754,8 +783,8 @@ void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
             wattroff(details_win, COLOR_PAIR(color2));
            
             if(finished){ 
-                int color1 = current_match->getPayout1() > 0 ? 103 : 104;
-                int color2 = current_match->getPayout2() > 0 ? 103 : 104;
+                int color1 = current_match->getPayout() > 0 ? 103 : 104;
+                int color2 = current_match->getPayout() > 0 ? 103 : 104;
                 wattron(details_win, color1);
                 mvwprintw(details_win, 9, 80, "%i", mecz.getBet1());
                 wattroff(details_win, color1);

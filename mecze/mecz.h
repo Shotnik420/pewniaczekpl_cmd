@@ -20,6 +20,7 @@ private:
     int wynik1 = 0;
     int wynik2 = 0;
     int bet1 = 0;
+    int betRemis = 0;
     int bet2 = 0;
 
 
@@ -64,22 +65,21 @@ public:
     }
 
     void set_bet1(int value);
+    void set_betRemis(int value);
     void set_bet2(int value);
     int getBet1() const { return bet1; }
+    int getBetRemis() const { return betRemis; }
     int getBet2() const { return bet2; }
-    float getPayout1() const {
+    float getPayout() const {
         if (wynik1 > wynik2) {
             return bet1 * kurs1;
+        }else if(wynik1<wynik2){
+            return bet2* kurs2;
+        }else if(wynik1==wynik2){
+            return betRemis * 2.0;
         }
         return 0.0f;
     }
-    float getPayout2() const {
-        if (wynik2 > wynik1) {
-            return bet2 * kurs2;
-        }
-        return 0.0f;
-    }
-
     int getWynik1() const { return wynik1; }
     int getWynik2() const { return wynik2; }
     

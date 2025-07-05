@@ -133,6 +133,9 @@ void Mecz::set_bet1(int value) {
 void Mecz::set_bet2(int value) {
     bet2 = value;
 }
+void Mecz::set_betRemis(int value){
+    betRemis = value;
+}
 
 
 void Mecz::change_pilka_owner(int id) {
