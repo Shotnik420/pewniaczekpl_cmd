@@ -30,7 +30,7 @@
         "-fdiagnostics-color=always",
         "-g",
         "${file}",
-        "uibuttons.cpp",
+        "uibuttons/uibuttons.cpp",
         "mecze/mecz.cpp",
         "player/player.cpp",
         "user/user.cpp",

@@ -38,7 +38,7 @@ bool User::saveToFile() const
     try{
         std::ofstream file(dirPath + "/player.txt");
         if (file.is_open()) {
-            file << " "<< name << " " << password << " " << money << " "<<admin_privileges;
+            file << *this; // Użycie operatora << do zapisu obiektu User
             file.close();
             success = true;
         }
@@ -52,4 +52,9 @@ bool User::saveToFile() const
     }
     
     return success;
+}
+
+std::ostream& operator<<(std::ostream& os, const User& user) {
+    os << " " << user.getName() << " " << user.password << " " << user.getMoney() << " " << user.isAdmin();
+    return os;
 }

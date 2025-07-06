@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "uibuttons.h"
+#include "./uibuttons/uibuttons.h"
 #include "./mecze/mecz.h"
 #include "./mecze/team_picker.cpp"
 #include "./mecze/team_picker.h"
@@ -17,7 +17,6 @@
 #include "./mecze/kosz.h"
 #include "./mecze/pilka.h"
 
-#pragma Deklaracje zmiennych 
 // Deklaracja filesystem
 namespace fs = std::filesystem;
 
@@ -30,15 +29,15 @@ short get_kurs_color(float kurs1, float kurs2);
 void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished);
 
 //Deklaracje zmiennych globalnych
-bool show_details = false;
 int selected_match_index = -1;
 bool user = false;
 bool matchOngoing = false;
 bool matchOverview = false;
+int next_step_speed = 1500;
+
 Mecz *current_match = nullptr;
 std::string dane_path = "dane";
 
-#pragma endregion
 
 int main(int argc, char *argv[]) {
     
@@ -112,12 +111,13 @@ int main(int argc, char *argv[]) {
 
 
     UIButton toggleBtn = create_button(70, 1, 18, 5, "  Wyniki  ", 102);
+    UIButton speedUp = create_button(50, 1, 18, 5, "Przyspiesz", 105);
     UIButton detailsGobackBtn = create_button(50, 1, 18, 5, "  Wroc ", 8);
 
     //Deklaracja przycisków do zakładów
-    UIButton betBtn = create_button(72, 4, 18, 5, "  Postaw na druzyne  ", 8);
-    UIButton betBtnRemis = create_button(72, 12, 18, 5, "  Postaw na remis  ", 8);
-    UIButton betBtn2 = create_button(72, 20, 18, 5, "  Postaw na druzyne  ", 8);
+    UIButton betBtn = create_button(73, 4, 19, 5, "Postaw na druzyne", 8);
+    UIButton betBtnRemis = create_button(73, 12, 19, 5, "Postaw na remis", 8);
+    UIButton betBtn2 = create_button(73, 20, 19, 5, "Postaw na druzyne", 8);
     UIButton add_50_to_bet = create_button(39, 1, 4, 3, "50", 103);
     UIButton add_100_to_bet = create_button(34, 1, 4, 3, "100", 103);
     UIButton add_500_to_bet = create_button(28, 1, 5, 3, "500", 103);
@@ -142,11 +142,11 @@ int main(int argc, char *argv[]) {
     box(details_win, 0, 0);
     while(user == false) { //loop logowania
         for (UIButton btn : buttons) { // Wyświetlanie przycisków użytkowników
-            draw_button(details_win, &btn);
+            btn.draw_button(details_win);
         }
 
         //Wyświetlanie przycisku do tworzenia nowego użytkownika
-        draw_button(win2, &newUserBtn);
+        newUserBtn.draw_button(win2);
 
         //Pobieramy dane wejścia
         ch = wgetch(win2);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 
                 //Dla każdego przycisku ta sama logika 
                 for (auto& btn : buttons) {
-                    if (is_inside_button(&btn, mx, my)) {
+                    if (btn.is_inside_button(mx, my)) {
                         clear();
                         
                         std::string folder_name = btn.text; // lub btn.label, zależnie od twojej struktury
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
                         initialize_players(current_user.getName());
                     }
                 }
-                if (is_inside_button(&newUserBtn, mx, my)) {
+                if (newUserBtn.is_inside_button( mx, my)) {
 
                     //Logika dodawania nowego użytkownika
                     std::string new_user_name;
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
     //
     for (UIButton &btn : buttons) {
         if (btn.text != "admin") {
-            draw_button(details_win, &btn);
+            btn .draw_button(details_win);
         }
     }  
         
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
                 int my = event.y;
 
                 for (auto& btn : buttons) {
-                    if (is_inside_button(&btn, mx, my)) {
+                    if (btn.is_inside_button( mx, my)) {
 
                         clear();
 
@@ -289,10 +289,10 @@ int main(int argc, char *argv[]) {
                                     file_out.close();
                                     mvprintw(ypos + 1, 1, "Dodano %d do konta %s. Nowy stan: %d", liczba, imie.c_str(), kasa);
                                     refresh();
-                                    napms(2000);
+                                    napms(1000);
                                     werase(win2);
                                     for (UIButton &btn : buttons) {
-                                        draw_button(details_win, &btn);
+                                        btn.draw_button(details_win);
                                     } 
                                     refresh();
                                 }
@@ -324,41 +324,33 @@ int main(int argc, char *argv[]) {
 
     //Tworzymy mecz, losowo czy kosz czy pilka
     if(rand() % 2 == 0) {
-        static Kosz mecz;
-        current_match = &mecz;
+        current_match = new Kosz(); // Tworzymy nowy mecz koszykówki
     } else {
-        static Pilka mecz;
-        current_match = &mecz;
+        current_match = new Pilka(); // Tworzymy nowy mecz piłki nożnej
     }
     
     bool finished = false; // Flaga do sprawdzania, czy mecz jest zakończony
 
     draw_art(art_win, current_match->getType(), 1, 1); // W zależności od typu meczu, rysujemy odpowiednią grafikę
 
-    if(!matchOngoing && !finished && !matchOverview){
-        for(UIButton &btn : betButtons) {
-            // Rysujemy przyciski do zakładów
-            draw_button(win, &btn);
-        }
-    }
-    wrefresh(win);
+    
 
     
 
     while(ch != 27) { //loop GRY
-        
-        if (!show_details) {
-            draw_button(win, &toggleBtn);
 
-            draw_tables(details_win, *current_match, finished);
-                        
-            draw_button(details_win, &betBtn);
-            draw_button(details_win, &betBtnRemis);
-            draw_button(details_win, &betBtn2);
-            wrefresh(details_win);
-            
-        
+
+        for(UIButton &btn : betButtons) {
+            // Rysujemy przyciski do zakładów
+            btn.draw_button(win);
         }
+        toggleBtn.draw_button(win);
+        draw_tables(details_win, *current_match, finished);
+                        
+        betBtn.draw_button(details_win);
+        betBtnRemis.draw_button(details_win);
+        betBtn2.draw_button(details_win);
+        wrefresh(details_win);
 
         //Refresh wszystkiego
         wrefresh(win);
@@ -391,9 +383,9 @@ int main(int argc, char *argv[]) {
             }
             
             mvwprintw(alert_win, 4, 18, message.c_str());
-            draw_button(alert_win, &alertBackBtn);
-            draw_button(alert_win, &alertSaveBtn);
-            draw_button(alert_win, &alertNextBtn);
+            alertBackBtn.draw_button(alert_win);
+            alertSaveBtn.draw_button(alert_win);
+            alertNextBtn.draw_button(alert_win);
             wrefresh(alert_win);
             
         }
@@ -406,9 +398,8 @@ int main(int argc, char *argv[]) {
                 int rel_y = event.y - win->_begy;
                
                 
-                if (is_inside_button(&detailsGobackBtn, rel_x, rel_y)) {
-                    if ((event.bstate & BUTTON1_CLICKED) && show_details) {
-                        show_details = false;
+                if (detailsGobackBtn.is_inside_button( rel_x, rel_y)) {
+                    if ((event.bstate & BUTTON1_CLICKED)) {
                         selected_match_index = -1;
                         current_match = nullptr;
                         werase(details_win);
@@ -418,21 +409,23 @@ int main(int argc, char *argv[]) {
                         napms(40);
                     }
                 }
-                if (is_inside_button(&toggleBtn, rel_x, rel_y)) {
+                if (toggleBtn.is_inside_button( rel_x, rel_y)) {
                     if (event.bstate & BUTTON1_CLICKED) {
                         if(!matchOverview){
                         matchOngoing = true;
                         werase(art_win);
                         wrefresh(art_win);
-                        
                         int line = 3;
+                        
+                        nodelay(win, TRUE); 
                         for (int i = 0; i < 40; i++) {
-                            mvwprintw(art_win, 0, 0, "%s %d  %d %s", 
+                            wattron(art_win, COLOR_PAIR(108));
+                            mvwprintw(art_win, 0, 0, "%s %i\n%s %i", 
                                 current_match->getOpponent1().c_str(), 
                                 current_match->getWynik1(), 
-                                current_match->getWynik2(),
-                                current_match->getOpponent2().c_str());
-                            
+                                current_match->getOpponent2().c_str(),
+                                current_match->getWynik2());
+                            wattroff(art_win, COLOR_PAIR(108));
                             std::string playText = current_match->get_next_play();
                             int color = current_match->get_pilka_team() == 1 ? 106 : 105;
                             wattron(art_win, COLOR_PAIR(color));
@@ -440,12 +433,33 @@ int main(int argc, char *argv[]) {
                             wattroff(art_win, COLOR_PAIR(color));
                             line += 3;
                             wrefresh(art_win);
-                            napms(100);
+                            
                             if (line >24){
                                 werase(art_win);
                                 line = 3;
                             }
+                            speedUp.draw_button(win);
+
+                            ch = wgetch(win);
+                            if(ch == KEY_MOUSE && getmouse(&event) == OK) {
+                                rel_x = event.x - win->_begx;
+                                rel_y = event.y - win->_begy;
+                            
+                                if (speedUp.is_inside_button(rel_x, rel_y)) {
+                                    if (event.bstate & BUTTON1_CLICKED) {
+                                        if (next_step_speed > 200) {
+                                            next_step_speed = 200;
+                                        }
+                                    }
+                                }
+                            }
+                            napms(next_step_speed);
                         }
+                        nodelay(win, FALSE); 
+                        next_step_speed = 1500;
+                        werase(win);
+                        box(win, 0, 0);
+                        current_match->pilka_state = 0;
                         if (line <24){
                             werase(art_win);
                             line = 3;
@@ -464,7 +478,7 @@ int main(int argc, char *argv[]) {
                         if (invested - payout < 0) {
                             current_user.setMoney(current_user.getMoney() + payout);
                         }
-
+                        
 
                         matchOngoing = false;
                         finished = true;
@@ -476,7 +490,6 @@ int main(int argc, char *argv[]) {
                             box(win2, 0, 0);
                             box(art_win, 0, 0);
                             matchOverview = false;
-                            show_details = false;
                             
                             finished = false;
                             current_bet = 0.0f;
@@ -494,8 +507,9 @@ int main(int argc, char *argv[]) {
                 }
 
                 }
+                
                 for(UIButton &btn : betButtons){
-                    if (is_inside_button(&btn, rel_x, rel_y)) {
+                    if (btn.is_inside_button( rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED) {
                             int value = std::stoi(btn.text);
                             if (current_bet + value <= current_user.getMoney()) {
@@ -514,10 +528,10 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 
-                if (!show_details) {
+              
                     rel_x = event.x - details_win->_begx;
                     rel_y = event.y - details_win->_begy;
-                    if (is_inside_button(&betBtn, rel_x, rel_y)) {
+                    if (betBtn.is_inside_button(rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED && 
                             current_bet > 0 && current_bet <= current_user.getMoney() && 
                             !finished && !matchOngoing) {
@@ -542,7 +556,7 @@ int main(int argc, char *argv[]) {
                         }
                     }
 
-                    if (is_inside_button(&betBtnRemis, rel_x, rel_y)) {
+                    if (betBtnRemis.is_inside_button(rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED && 
                             current_bet > 0 && current_bet <= current_user.getMoney() && 
                             !finished && !matchOngoing) {
@@ -568,7 +582,7 @@ int main(int argc, char *argv[]) {
                         }
                     }
 
-                    if (is_inside_button(&betBtn2, rel_x, rel_y)) {
+                    if (betBtn2.is_inside_button(rel_x, rel_y)) {
                     
                     
                         if (event.bstate & BUTTON1_CLICKED
@@ -595,12 +609,12 @@ int main(int argc, char *argv[]) {
                             napms(40);
                         }
                     }
-                }
+                
             
                 if(finished){ // Przyciski alerty
                     rel_x = event.x - alert_win->_begx;
                     rel_y = event.y - alert_win->_begy;
-                    if (is_inside_button(&alertBackBtn, rel_x, rel_y)) {
+                    if (alertBackBtn.is_inside_button(rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED) { // wroc do listy
                             wclear(alert_win);
                             wrefresh(alert_win);
@@ -622,20 +636,19 @@ int main(int argc, char *argv[]) {
                                                     
                         }
                     }
-                    if (is_inside_button(&alertSaveBtn, rel_x, rel_y)) {
+                    if (alertSaveBtn.is_inside_button(rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED) { // zapisz stan
                             current_user.saveToFile();
                             save_players(current_user.getName());
                             werase(alert_win);
                             mvwprintw(alert_win, 2, 18, "Stan zapisany!");
                             wrefresh(alert_win);
-                            napms(2000);
+                            napms(1000);
                         }
                     }
-                    if (is_inside_button(&alertNextBtn, rel_x, rel_y)) {
+                    if (alertNextBtn.is_inside_button(rel_x, rel_y)) {
                         if (event.bstate & BUTTON1_CLICKED) { // nastepny mecz
                             matchOverview = false;
-                            show_details = false;
                             finished = false;
                             current_bet = 0.0f;
                             current_match = nullptr;
@@ -647,11 +660,9 @@ int main(int argc, char *argv[]) {
                             wrefresh(details_win);
 
                             if (rand() % 2 == 0) {
-                                static Kosz mecz;
-                                current_match = &mecz;
+                                current_match = new Kosz();
                             } else {
-                                static Pilka mecz;
-                                current_match = &mecz;
+                                current_match = new Pilka();
                             }
                             current_match->set_bet1(0);
                             current_match->set_bet2(0);
@@ -705,11 +716,11 @@ void draw_art(WINDOW* window, int which,int x, int y ) {
 
     switch (which)
     {
-    case 0:
+    case 1:
         art = bb;
         lines = 7;
         break;
-    case 1:
+    case 0:
         art = fb;
         lines = 6;
         break;
@@ -781,21 +792,10 @@ void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
             wattron(details_win, COLOR_PAIR(color2));
             mvwprintw(details_win, 18, 63, "%.2f", mecz.getKurs2());
             wattroff(details_win, COLOR_PAIR(color2));
-           
-            if(finished){ 
-                int color1 = current_match->getPayout() > 0 ? 103 : 104;
-                int color2 = current_match->getPayout() > 0 ? 103 : 104;
-                wattron(details_win, color1);
-                mvwprintw(details_win, 9, 80, "%i", mecz.getBet1());
-                wattroff(details_win, color1);
-                wattron(details_win, color2);
-                mvwprintw(details_win, 25, 80, "%i", mecz.getBet2());
-                wattroff(details_win, color2);
-            }
-            else{
-                mvwprintw(details_win, 9, 80, "%i", mecz.getBet1());
-                mvwprintw(details_win, 25, 80, "%i", mecz.getBet2());
-            }
+            mvwprintw(details_win, 9, 81, "%i", mecz.getBet1());
+            mvwprintw(details_win, 17, 81, "%i", mecz.getBetRemis());
+            mvwprintw(details_win, 25, 81, "%i", mecz.getBet2());
+            
             
             std::vector<float> team1_skill_change = current_match->get_team1_skill_change();
             std::vector<float> team2_skill_change = current_match->get_team2_skill_change();
@@ -811,7 +811,7 @@ void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
                     wattroff(details_win, COLOR_PAIR(colorpair));
                     if(finished && team1_skill_change[i] != 0.0f){
                         wattron(details_win, COLOR_PAIR(103));
-                        mvwprintw(details_win, 4 + i, 67, "+%.1f", team2_skill_change[i]);
+                        mvwprintw(details_win, 4 + i, 67, "+%.2f", team2_skill_change[i]);
                         wattroff(details_win, COLOR_PAIR(103));
                     }
 

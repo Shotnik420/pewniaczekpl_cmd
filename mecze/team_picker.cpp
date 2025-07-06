@@ -38,19 +38,20 @@ void initialize_players(std::string user_name) {
 
 
     all_players.push_back(std::make_unique<Koszykarz>(1, "Janusz Wieprzowina", 0.97, 0.33));
-    all_players.push_back(std::make_unique<Koszykarz>(2, "Knur Knurek", 0.6, 0.9));
-    all_players.push_back(std::make_unique<Koszykarz>(3, "Szakal Mongol", 0.5, 0.8));
-    all_players.push_back(std::make_unique<Koszykarz>(4, "Tymone Rudyjui", 0.5, 0.6));
-    all_players.push_back(std::make_unique<Koszykarz>(5, "Freaky Zopa", 0.5, 0.7));
+    all_players.push_back(std::make_unique<Koszykarz>(2, "Tata swinka", 0.6, 0.9));
+    all_players.push_back(std::make_unique<Koszykarz>(3, "Szakal Mongolski", 0.5, 0.8));
+    all_players.push_back(std::make_unique<Koszykarz>(4, "Tymone Roodi", 0.5, 0.6));
+    all_players.push_back(std::make_unique<Koszykarz>(5, "Freaky Jopa", 0.5, 0.7));
     all_players.push_back(std::make_unique<Koszykarz>(6, "Gruby Ztefdwa", 0.4, 0.7));
     all_players.push_back(std::make_unique<Pilkarz>(7, "Ulrich Jungingen", 0.8, 0.4));
     all_players.push_back(std::make_unique<Pilkarz>(8, "Polski Vip", 0.3, 0.9));
     all_players.push_back(std::make_unique<Pilkarz>(9, "Chlebak Kacper", 0.6, 0.8));
-    all_players.push_back(std::make_unique<Pilkarz>(10, "Tkaczynski Patricio", 0.7, 0.6));
+    all_players.push_back(std::make_unique<Pilkarz>(10, "Tkaczyski Patricio", 0.7, 0.6));
     all_players.push_back(std::make_unique<Pilkarz>(11, "Koszmarny Karolek", 0.8, 0.5));
-    all_players.push_back(std::make_unique<Pilkarz>(12, "Kamil Caputa", 0.9, 0.4));
+    all_players.push_back(std::make_unique<Pilkarz>(12, "Kamil Caputnik", 0.9, 0.4));
     all_players.push_back(std::make_unique<Pilkarz>(13, "DJKhaled", 0.5, 0.3));
     all_players.push_back(std::make_unique<Koszykarz>(14, "Polski Mlot", 0.1, 2.1));
+    all_players.push_back(std::make_unique<Koszykarz>(15, "Zenek Martyniuk", 0.5, 0.5));
 }
 
 

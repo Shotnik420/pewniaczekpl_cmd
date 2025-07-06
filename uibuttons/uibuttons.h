@@ -13,7 +13,7 @@ public:
     int width;
     int height;
     char* text;
-    bool visible;
+    bool visible = true;
     int border_color_pair;
 
     UIButton(int x, int y, int w, int h, const char* text, int border_color)
@@ -25,16 +25,24 @@ public:
         // Domyślny konstruktor
     }
 
-    
+    void delete_button(UIButton* btn) {
+        if (btn && btn->text) {
+            free(btn->text);
+            btn->text = nullptr;
+        }
+    }
+
+    void draw_button(WINDOW* win);
+
+    bool is_inside_button(int x, int y);
+
 
 };
 // Inicjalizacja przycisku
    UIButton create_button(int x, int y, int w, int h, const char* text, int border_color);
 
-    // Rysowanie przycisku
-    void draw_button(WINDOW* win, UIButton* btn);
+    
 
-    // Sprawdza czy pozycja (x,y) jest wewnątrz przycisku
-    bool is_inside_button(UIButton* btn, int x, int y);
+    
 
 #endif

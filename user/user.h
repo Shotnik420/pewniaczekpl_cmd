@@ -13,16 +13,19 @@ public:
     float getMoney() const;
 
 
+
     void setName(const std::string name);
     void setPassword(const std::string password);
     void setMoney(float money);
-    bool isAdmin() {
+    bool isAdmin() const {
         return admin_privileges;
     }
     void setAdmin(bool isAdmin) {
         admin_privileges = isAdmin;
     }
     bool saveToFile() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const User& user);
 private:
     int id;
     std::string name;

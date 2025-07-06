@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "../player/player.h"
+#include "../Bet/bet.h"
 class Mecz {
 private:
     std::string nazwa;
@@ -19,9 +20,11 @@ private:
     float kurs2;
     int wynik1 = 0;
     int wynik2 = 0;
-    int bet1 = 0;
-    int betRemis = 0;
-    int bet2 = 0;
+
+    Bet bet1;
+    Bet betRemis;
+    Bet bet2;
+
 
 
     
@@ -67,19 +70,20 @@ public:
     void set_bet1(int value);
     void set_betRemis(int value);
     void set_bet2(int value);
-    int getBet1() const { return bet1; }
-    int getBetRemis() const { return betRemis; }
-    int getBet2() const { return bet2; }
+    int getBet1() const { return bet1.get_bet(); }
+    int getBet2() const { return bet2.get_bet(); }
+    int getBetRemis() const { return betRemis.get_bet(); }
     float getPayout() const {
         if (wynik1 > wynik2) {
-            return bet1 * kurs1;
+            return bet1.get_bet() * kurs1;
         }else if(wynik1<wynik2){
-            return bet2* kurs2;
+            return bet2.get_bet()* kurs2;
         }else if(wynik1==wynik2){
-            return betRemis * 2.0;
+            return betRemis.get_bet() * 2.0;
         }
         return 0.0f;
     }
+
     int getWynik1() const { return wynik1; }
     int getWynik2() const { return wynik2; }
     

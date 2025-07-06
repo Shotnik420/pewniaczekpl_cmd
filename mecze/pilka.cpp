@@ -93,6 +93,8 @@ std::string Pilka::get_next_play(){
                 pilka_taker = interceptor;
                 pilka_owner_team = pilka_owner_team == 1 ? 2 : 1; // Zmienia drużynę
                 pilka_owner = pilka_taker;
+                Player* interceptor_player = get_player(pilka_owner);
+                add_exp(interceptor_player , 0.10, 1);
                 return get_player_name(interceptor) + " broni bramke przed strzalem!";
             }
             pilka_owner_team = pilka_owner_team == 1 ? 2 : 1; // Zmienia drużynę
@@ -104,6 +106,9 @@ std::string Pilka::get_next_play(){
             }else{
                 set_wynik(2, 1);
             }
+            Player* score_player = get_player(scorer);
+            add_exp(score_player , 0.10, 1);
+
             return "GOOOOOL" + get_player_name(scorer) + " strzela perfekcyjnie!";
             
         }else if(pilka_state == 4){ // Gola zdobył przeciwnik

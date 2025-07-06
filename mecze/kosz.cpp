@@ -62,14 +62,14 @@ std::string Kosz::get_next_play(){
             pilka_state = 0;
 
             if(rand() % 100 < intercept_chance * 100){
-                add_exp(defender, 0.10, 1);
+                add_exp(defender, 0.05, 2);
                 pilka_owner = interceptor;
                 pilka_owner_team = pilka_owner_team == 1 ? 2 : 1;
                 pilka_taker = 0;
                 return get_player_name(interceptor) + " przechwytuje podanie!";
             }
 
-            add_exp(passer, 0.10, 1);
+            add_exp(passer, 0.05, 2);
             pilka_owner = pilka_taker;
             pilka_taker = 0;
             return get_player_name(pilka_owner) + " otrzymuje podanie.";
@@ -87,12 +87,16 @@ std::string Kosz::get_next_play(){
             if(rand() % 100 < block_chance * 100){
                 pilka_owner = defender;
                 pilka_owner_team = pilka_owner_team == 1 ? 2 : 1;
+                Player* owner_player = get_player(pilka_owner);
+                add_exp(owner_player, 0.05, 2);
                 return get_player_name(defender) + " blokuje rzut! Przejmuje pilke.";
             }
 
             int points = rand() % 100 < 33 ? 3 : 2; // 33% szans na rzut za 3
             set_wynik(pilka_owner_team, points);
             std::string msg = "PIEKNY RZUT! " + get_player_name(pilka_owner) + " zdobywa " + std::to_string(points) + " punkty!";
+            Player* owner_player = get_player(pilka_owner);
+            add_exp(owner_player, 0.10, 2);
             pilka_owner = get_new_owner(pilka_owner_team == 1 ? 2 : 1);
             pilka_owner_team = pilka_owner_team == 1 ? 2 : 1;
             pilka_state = 0;

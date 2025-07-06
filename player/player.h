@@ -4,11 +4,7 @@
 #include <vector>
 #include <memory>
 #include <ostream>
-enum class PlayerType {
-    Unknown,
-    Koszykarz,
-    Pilkarz
-};
+
 class Player {
 private:
     int PID; 

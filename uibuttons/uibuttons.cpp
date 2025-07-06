@@ -42,6 +42,8 @@ void init_ui_colors() { // Tworzenie nowych par kolorów
     init_pair(105, 13, COLOR_BLACK); // Para kolorów z jasnozielonym na czarnym tle
     init_pair(106, 14, COLOR_BLACK); // Jasnoniebieski na czarnym tle
     init_pair(107, 15, COLOR_BLACK); // Jasnopomarańczowy na czarnym tle
+    init_pair(108, COLOR_BLACK,COLOR_WHITE); // Jasnopomarańczowy na czarnym tle
+
 }
 
 
@@ -51,34 +53,35 @@ UIButton create_button(int x, int y, int w, int h, const char* text, int border_
     return btn;
 }
 
-// Funkcja rysująca przycisk
-void draw_button(WINDOW* win, UIButton* btn) {
-    if (!btn->visible) return;
+
+void UIButton::draw_button(WINDOW* win) {
+    if (!visible) return;
     
     // Oblicz pozycję tekstu aby był wyśrodkowany
-    int text_x = btn->xpos + (btn->width - strlen(btn->text)) / 2;
-    int text_y = btn->ypos + btn->height / 2;
+    int text_x = xpos + (width - strlen(text)) / 2;
+    int text_y = ypos + height / 2;
     
 
-    wattron(win, COLOR_PAIR(btn->border_color_pair));
+    wattron(win, COLOR_PAIR(border_color_pair));
 
     // Rysuj ramkę przycisku
-    for (int y = btn->ypos; y < btn->ypos + btn->height; y++) {
-        for (int x = btn->xpos; x < btn->xpos + btn->width; x++) {
-            if (y == btn->ypos || y == btn->ypos + btn->height - 1 ||
-                x == btn->xpos || x == btn->xpos + btn->width - 1) {
+    for (int y = ypos; y < ypos + height; y++) {
+        for (int x = xpos; x < xpos + width; x++) {
+            if (y == ypos || y == ypos + height - 1 ||
+                x == xpos || x == xpos + width - 1) {
                 mvwaddch(win, y, x, '*');
             }
         }
     }
-    wattroff(win, COLOR_PAIR(btn->border_color_pair));
+    
     // Rysuj tekst
-    mvwprintw(win, text_y, text_x, "%s", btn->text);
+    mvwprintw(win, text_y, text_x, "%s", text);
+    wattroff(win, COLOR_PAIR(border_color_pair));
 }
 
 //Czy kursor myszy znajduje się wewnątrz przycisku
-bool is_inside_button(UIButton* btn, int x, int y) {
-    return (x >= btn->xpos && x < btn->xpos + btn->width &&
-            y >= btn->ypos && y < btn->ypos + btn->height);
+bool UIButton::is_inside_button(int x, int y) {
+    return (x >= xpos && x < xpos + width &&
+            y >= ypos && y < ypos + height);
 }
 

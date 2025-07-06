@@ -45,7 +45,7 @@ void Mecz::make_name() {
 void Mecz::set_random_opponentsteam() {
     
     auto all_players_copy = std::vector<Player*>{};
-    all_players_copy.reserve(all_players.size()); // pre-allocate for efficiency
+    all_players_copy.reserve(all_players.size()); 
 
     for (const auto& player : all_players) {
         all_players_copy.push_back(player.get());
@@ -128,13 +128,13 @@ void Mecz::set_wynik(int who, int amount) {
 }
 
 void Mecz::set_bet1(int value) {
-    bet1 = value;
+    bet1.set_bet(value);
 }
 void Mecz::set_bet2(int value) {
-    bet2 = value;
+    bet2.set_bet(value);
 }
 void Mecz::set_betRemis(int value){
-    betRemis = value;
+    betRemis.set_bet(value);
 }
 
 
