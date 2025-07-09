@@ -60,6 +60,10 @@ public:
         return kurs2;
     }
 
+    int getType() {
+        return type;
+    }
+
     std::string getOpponent1() const {
         return opponent1name;
     }

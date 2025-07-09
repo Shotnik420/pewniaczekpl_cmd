@@ -14,17 +14,22 @@ private:
     float skill_basketball;
 
     
+    
     int type = 0;
 
 public:
+    static int object_count;
     Player(int PID, std::string name, float skill_football, float skill_basketball, int type = 0);
     Player();
 
-    ~Player() = default;
+    ~Player(){
+        object_count--;
+    };
 
     std::string getName() const;
     int getPID() const;
 
+    
     
     float getSkillFootball() const {
         return skill_football; 

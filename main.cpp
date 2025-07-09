@@ -1,3 +1,6 @@
+/**
+@file main.cpp
+*/
 #define NCURSES_MOUSE_VERSION
 #include <iostream>
 #include <curses.h>
@@ -774,7 +777,7 @@ short get_kurs_color(float kurs1, float kurs2) {
 }
 // Funkcja rysująca tabele z danymi meczu
 void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
-        
+
             wattron(details_win, COLOR_PAIR(105));
             mvwprintw(details_win, 2, 40, mecz.getOpponent1().c_str());
             wattroff(details_win, COLOR_PAIR(105));
@@ -807,6 +810,11 @@ void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
                     
                     wattron(details_win, COLOR_PAIR(colorpair));
                     mvwprintw(details_win, 4 + i, 40, "%s", currentPlayer->getName().c_str());
+                    if(mecz.getType() == 1) {
+                        mvwprintw(details_win, 4 + i, 63, "%.2f", currentPlayer->getSkillBasketball());
+                    } else {
+                        mvwprintw(details_win, 4 + i, 63, "%.2f", currentPlayer->getSkillFootball());
+                    }
                     mvwprintw(details_win, 4 + i, 63, "%.2f", currentPlayer->getSkillFootball());
                     wattroff(details_win, COLOR_PAIR(colorpair));
                     if(finished && team1_skill_change[i] != 0.0f){
@@ -832,7 +840,11 @@ void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
                     
                     wattron(details_win, COLOR_PAIR(colorpair));
                     mvwprintw(details_win, 20 + i, 40, "%s", currentPlayer->getName().c_str());
-                    mvwprintw(details_win, 20 + i, 63, "%.2f", currentPlayer->getSkillFootball());
+                    if(mecz.getType() == 1) {
+                        mvwprintw(details_win, 20 + i, 63, "%.2f", currentPlayer->getSkillBasketball());
+                    } else {
+                        mvwprintw(details_win, 20 + i, 63, "%.2f", currentPlayer->getSkillFootball());
+                    }
                     wattroff(details_win, COLOR_PAIR(colorpair));
                     if(finished && team2_skill_change[i] != 0.0f) {
                         wattron(details_win, COLOR_PAIR(103));
