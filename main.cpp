@@ -777,6 +777,7 @@ short get_kurs_color(float kurs1, float kurs2) {
 }
 // Funkcja rysująca tabele z danymi meczu
 void draw_tables(WINDOW *details_win, Mecz &mecz, bool finished) {
+            mvwprintw(details_win, 1, 40, "%i", Player::object_count);
 
             wattron(details_win, COLOR_PAIR(105));
             mvwprintw(details_win, 2, 40, mecz.getOpponent1().c_str());
